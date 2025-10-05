@@ -130,6 +130,7 @@ function Bonbons_ausgeben () {
     Kreis.clear()
     Kreis.show()
     Warte_auf_Soundende()
+    radio.sendValue("dispens", Anzahl_Bonbon)
     if (Anzahl_Bonbon < Mindestmenge) {
         halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
         Starte_Sound(2)
@@ -141,8 +142,11 @@ function Bonbons_ausgeben () {
     }
 }
 input.onButtonPressed(Button.A, function () {
-    Bonbons_ausgeben()
-    control.reset()
+    Lautstärke += -1
+    if (Lautstärke < 0) {
+        Lautstärke = 0
+    }
+    Verstärker(Lautstärke)
 })
 function Spiel_Hintergrund_3 () {
 	
@@ -247,14 +251,33 @@ function Attraktion () {
 function Spiel_3 () {
     return 0
 }
+input.onButtonPressed(Button.AB, function () {
+    servos.P0.run(60)
+    basic.pause(1000)
+    servos.P0.stop()
+})
 input.onButtonPressed(Button.B, function () {
-	
+    Lautstärke += 1
+    if (Lautstärke > 255) {
+        Lautstärke = 255
+    }
+    Verstärker(Lautstärke)
 })
 input.onGesture(Gesture.Shake, function () {
     Starte_Sound(15)
 })
 radio.onReceivedValue(function (name, value) {
-	
+    if (name == "events") {
+        event_source = value
+    } else if (name == "eventv") {
+        event_value = value
+        control.raiseEvent(
+        event_source,
+        event_value
+        )
+    } else {
+    	
+    }
 })
 function Starte_Sound (num: number) {
     if (Math.floor(num / 1) % 2 == 1) {
@@ -305,6 +328,8 @@ function Verstärker (Lautstärke: number) {
     )
 }
 let Geprüfte_Lautstärke = 0
+let event_value = 0
+let event_source = 0
 let Attraktion_Helfer = 0
 let Attraktionsmodus = 0
 let Spielstart_Bild = 0
@@ -322,10 +347,12 @@ let PixelListe: number[] = []
 let Timeout = 0
 let Tastenmatrix: neopixel.Strip = null
 let Kreis: neopixel.Strip = null
+let Lautstärke = 0
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
-Verstärker(40)
+Lautstärke = 40
+Verstärker(Lautstärke)
 HalloweenKeypad.initialize()
 Kreis = neopixel.create(DigitalPin.P12, 35, NeoPixelMode.RGB)
 Kreis.clear()
@@ -334,9 +361,9 @@ Tastenmatrix = neopixel.create(DigitalPin.P1, 25, NeoPixelMode.RGBW)
 Tastenmatrix.setMatrixWidth(5)
 Tastenmatrix.clear()
 Tastenmatrix.show()
-radio.setGroup(1)
+radio.setGroup(152)
 radio.setTransmitPower(7)
-radio.setFrequencyBand(0)
+radio.setFrequencyBand(46)
 basic.forever(function () {
     Tastenmatrix.clear()
     Attraktion()
@@ -352,6 +379,11 @@ basic.forever(function () {
         Ergebnis = Spiel_4()
     } else {
         Ergebnis = 0
+    }
+    if (Ergebnis) {
+        radio.sendValue("won", Spiel)
+    } else {
+        radio.sendValue("lost", Spiel)
     }
     Spiel = 0
     // Warte bis der Hintergrund fertig verarbeitet ist.
