@@ -76,25 +76,25 @@ function Warte_auf_Soundende () {
         basic.pause(10)
     }
 }
-function Attraktion_Hintergrund () {
-    if (!(Sound_spielt())) {
-        Starte_Sound(randint(9, 15))
-    }
-}
 function Spiel_Hintergrund_1 () {
-    for (let Index = 0; Index <= 25; Index++) {
-        if (PixelListe[Index]) {
-            Tastenmatrix.setPixelColor(Index, neopixel.rgb(halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5), 0, 0))
+    for (let Index2 = 0; Index2 <= 25; Index2++) {
+        if (PixelListe[Index2]) {
+            Tastenmatrix.setPixelColor(Index2, neopixel.rgb(halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5), 0, 0))
         }
     }
     Tastenmatrix.show()
 }
-function Bild_anzeigen (RGBW: number[][]) {
-    for (let Index = 0; Index <= 24; Index++) {
-        Tastenmatrix.setPixelColor(Index, RGBW[Index][0])
-        Tastenmatrix.setPixelWhiteLED(Index, RGBW[Index][1])
+function Bonbonausgabe_Hintergrund () {
+    if (!(Sound_spielt())) {
+        Starte_Sound(8)
     }
-    Tastenmatrix.show()
+    Kreis.rotate(1)
+    Kreis.show()
+    if (Math.idiv(control.millis(), 1000) % 2 == 1) {
+        halloween.Bild_anzeigen(halloween.Zuckerstange(), Tastenmatrix, 255, 255, true)
+    } else {
+        halloween.Bild_anzeigen(halloween.Zuckerstange2(), Tastenmatrix, 255, 255, true)
+    }
 }
 function Bonbons_ausgeben () {
     Starte_Sound(8)
@@ -127,7 +127,7 @@ function Bonbons_ausgeben () {
     Kreis.show()
     Warte_auf_Soundende()
     if (Anzahl_Bonbon < Mindestmenge) {
-        Bild_anzeigen(halloween.Falsch())
+        halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
         Starte_Sound(2)
         Warte_auf_Soundende()
         Starte_Sound(2)
@@ -157,11 +157,11 @@ function Spielstart () {
     Starte_Sound(6)
     Spielstart_Bild = randint(0, 2)
     if (Spielstart_Bild == 0) {
-        Bild_anzeigen(halloween.Geist())
+        halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, 255, true)
     } else if (Spielstart_Bild == 1) {
-        Bild_anzeigen(halloween.Totenkopf())
+        halloween.Bild_anzeigen(halloween.Totenkopf(), Tastenmatrix, 255, 255, true)
     } else {
-        Bild_anzeigen(halloween.Kürbis())
+        halloween.Bild_anzeigen(halloween.Kürbis(), Tastenmatrix, 255, 255, true)
     }
     Warte_auf_Soundende()
     Tastenmatrix.clear()
@@ -171,7 +171,7 @@ function Attraktion () {
     HalloweenKeypad.clearEventQueue()
     while (HalloweenKeypad.getLastKeyPressed() == -1) {
         Attraktionsmodus = randint(1, 3)
-        Timeout = 5000
+        Timeout = 60000
         Timer = control.millis()
         if (Attraktionsmodus == 1) {
             Tastenmatrix.clear()
@@ -196,21 +196,34 @@ function Attraktion () {
             Attraktion_Helfer = randint(0, 3)
             if (Attraktion_Helfer == 0) {
                 Starte_Sound(3)
-                Bild_anzeigen(halloween.Totenkopf())
+                while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                    Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
+                    halloween.Bild_anzeigen(halloween.Totenkopf(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
+                    basic.pause(10)
+                }
             } else if (Attraktion_Helfer == 1) {
                 Starte_Sound(7)
-                Bild_anzeigen(halloween.Herz())
+                while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                    Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
+                    halloween.Bild_anzeigen(halloween.Herz(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
+                    basic.pause(10)
+                }
             } else if (Attraktion_Helfer == 2) {
                 Starte_Sound(4)
-                Bild_anzeigen(halloween.Kürbis())
+                while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                    Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
+                    halloween.Bild_anzeigen(halloween.Kürbis(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
+                    basic.pause(10)
+                }
             } else if (Attraktion_Helfer == 3) {
                 Starte_Sound(16)
-                Bild_anzeigen(halloween.Geist())
+                while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                    Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
+                    halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, Attraktion_Helfer, true)
+                    basic.pause(10)
+                }
             } else {
             	
-            }
-            while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
-                basic.pause(100)
             }
         } else {
         	
@@ -256,16 +269,9 @@ function Starte_Sound (num: number) {
     pins.setPull(DigitalPin.P15, PinPullMode.PullNone)
     pins.setPull(DigitalPin.P16, PinPullMode.PullNone)
 }
-function Bonbonausgabe_Hintergrund () {
+function Attraktion_Hintergrund () {
     if (!(Sound_spielt())) {
-        Starte_Sound(8)
-    }
-    Kreis.rotate(1)
-    Kreis.show()
-    if (Math.idiv(control.millis(), 1000) % 2 == 1) {
-        Bild_anzeigen(halloween.Zuckerstange())
-    } else {
-        Bild_anzeigen(halloween.Zuckerstange2())
+        Starte_Sound(randint(9, 15))
     }
 }
 function Verstärker (Lautstärke: number) {
@@ -344,7 +350,7 @@ basic.forever(function () {
         Spiel = 99
         Bonbons_ausgeben()
     } else {
-        Bild_anzeigen(halloween.Falsch())
+        halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
         Starte_Sound(5)
         Warte_auf_Soundende()
     }
