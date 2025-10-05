@@ -76,6 +76,11 @@ function Warte_auf_Soundende () {
         basic.pause(10)
     }
 }
+function Attraktion_Hintergrund () {
+    if (!(Sound_spielt())) {
+        Starte_Sound(randint(9, 15))
+    }
+}
 function Spiel_Hintergrund_1 () {
     for (let Index = 0; Index <= 25; Index++) {
         if (PixelListe[Index]) {
@@ -164,12 +169,52 @@ function Spielstart () {
 }
 function Attraktion () {
     HalloweenKeypad.clearEventQueue()
-    while (HalloweenKeypad.waitForAnyKey(10) == -1) {
-        if (!(Sound_spielt())) {
-            Starte_Sound(randint(9, 15))
+    while (HalloweenKeypad.getLastKeyPressed() == -1) {
+        Attraktionsmodus = randint(1, 3)
+        Timeout = 5000
+        Timer = control.millis()
+        if (Attraktionsmodus == 1) {
+            Tastenmatrix.clear()
+            while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                Tastenmatrix.showBarGraph(input.soundLevel(), 255)
+                Tastenmatrix.show()
+                basic.pause(10)
+            }
+        } else if (Attraktionsmodus == 2) {
+            while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                Attraktion_Helfer = randint(0, 24)
+                Tastenmatrix.clear()
+                Tastenmatrix.setPixelWhiteLED(Attraktion_Helfer, 255)
+                Tastenmatrix.setPixelColor(Attraktion_Helfer, neopixel.colors(NeoPixelColors.White))
+                Tastenmatrix.show()
+                basic.pause(randint(50, 100))
+                Tastenmatrix.clear()
+                Tastenmatrix.show()
+                basic.pause(randint(500, 1000))
+            }
+        } else if (Attraktionsmodus == 3) {
+            Attraktion_Helfer = randint(0, 3)
+            if (Attraktion_Helfer == 0) {
+                Starte_Sound(3)
+                Bild_anzeigen(halloween.Totenkopf())
+            } else if (Attraktion_Helfer == 1) {
+                Starte_Sound(7)
+                Bild_anzeigen(halloween.Herz())
+            } else if (Attraktion_Helfer == 2) {
+                Starte_Sound(4)
+                Bild_anzeigen(halloween.Kürbis())
+            } else if (Attraktion_Helfer == 3) {
+                Starte_Sound(16)
+                Bild_anzeigen(halloween.Geist())
+            } else {
+            	
+            }
+            while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                basic.pause(100)
+            }
+        } else {
+        	
         }
-        Tastenmatrix.showBarGraph(input.soundLevel(), 255)
-        Tastenmatrix.show()
     }
 }
 function Spiel_3 () {
@@ -240,6 +285,8 @@ function Verstärker (Lautstärke: number) {
     )
 }
 let Geprüfte_Lautstärke = 0
+let Attraktion_Helfer = 0
+let Attraktionsmodus = 0
 let Spielstart_Bild = 0
 let Spiel = 0
 let Ein_Bonbon_erkannt = 0
@@ -272,7 +319,11 @@ radio.setTransmitPower(7)
 radio.setFrequencyBand(0)
 basic.forever(function () {
     Tastenmatrix.clear()
+    Spiel = 98
     Attraktion()
+    Spiel = 0
+    // Warte bis der Hintergrund fertig verarbeitet ist.
+    basic.pause(100)
     Spielstart()
     Spiel = randint(1, 2)
     if (Spiel == 1) {
@@ -306,6 +357,8 @@ control.inBackground(function () {
             Spiel_Hintergrund_2()
         } else if (Spiel == 99) {
             Bonbonausgabe_Hintergrund()
+        } else if (Spiel == 98) {
+            Attraktion_Hintergrund()
         } else {
         	
         }
