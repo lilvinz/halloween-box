@@ -142,6 +142,7 @@ function Bonbons_ausgeben () {
 }
 input.onButtonPressed(Button.A, function () {
     Bonbons_ausgeben()
+    control.reset()
 })
 function Spiel_Hintergrund_3 () {
 	
