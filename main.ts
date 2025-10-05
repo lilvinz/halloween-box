@@ -11,7 +11,6 @@ function Spiel_1 () {
     while (Fortschritt < 25 && control.millis() - Timer < 10000) {
         Ergebnis = HalloweenKeypad.waitForAnyKey(50)
         if (Ergebnis >= 0) {
-            serial.writeLine(convertToText(Ergebnis))
             if (PixelListe[Ergebnis] == 1) {
                 Starte_Sound(7)
                 PixelListe[Ergebnis] = 0
@@ -34,8 +33,49 @@ control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, EventBusValue.MICROBIT_PIN_EVT
     Tastenmatrix.setPixelColor(20, neopixel.colors(NeoPixelColors.Black))
     Tastenmatrix.show()
 })
-function Spiel_2 () {
+function Empfundene_Helligkeit (num: number) {
     return 0
+}
+function Spiel_2 () {
+    HalloweenKeypad.clearEventQueue()
+    Timeout = 20000
+    Fortschritt = 0
+    while (Fortschritt < 10) {
+        Pixel = randint(0, 24)
+        Timer = control.millis()
+        while (control.millis() - Timer < Timeout) {
+            Ergebnis = HalloweenKeypad.waitForAnyKey(50)
+            if (Ergebnis >= 0) {
+                if (Ergebnis == Pixel) {
+                    Starte_Sound(7)
+                    Fortschritt += 1
+                    Timeout = Timeout * 0.75
+                } else {
+                    Starte_Sound(2)
+                    Fortschritt += -1
+                    Timeout = Timeout * 0.75
+                    if (Fortschritt < 0) {
+                        Warte_auf_Soundende()
+                        return 0
+                    }
+                }
+                break;
+            }
+        }
+        if (control.millis() - Timer >= Timeout) {
+            Fortschritt += -1
+            Timeout = Timeout * 0.75
+            if (Fortschritt < 0) {
+                return 0
+            }
+        }
+        Tastenmatrix.setPixelColor(Pixel, neopixel.colors(NeoPixelColors.Black))
+    }
+    if (Fortschritt >= 10) {
+        return 1
+    } else {
+        return 0
+    }
 }
 function Warte_auf_Soundende () {
     // Hier müssen wir warten, falls der Player gerade erst los geschickt wurde.
@@ -124,6 +164,7 @@ function Spielstart () {
     Bild_anzeigen(halloween.Herz())
     basic.pause(500)
     Tastenmatrix.clear()
+    Tastenmatrix.show()
 }
 function Attraktion () {
     HalloweenKeypad.clearEventQueue()
@@ -193,6 +234,8 @@ let Ausgabe_Dauer_bis_Bonbon = 0
 let Ausgabe_Startzeit = 0
 let Anzahl_Bonbon = 0
 let Mindestmenge = 0
+let Pixel = 0
+let Timeout = 0
 let Ergebnis = 0
 let Fortschritt = 0
 let Timer = 0
@@ -212,24 +255,37 @@ loops.everyInterval(50, function () {
     Kreis.show()
 })
 basic.forever(function () {
+    Tastenmatrix.clear()
     Attraktion()
     Spielstart()
-    Spiel = randint(1, 1)
+    Spiel = randint(2, 2)
     if (Spiel == 1) {
-        Spiel = Spiel_1()
+        Ergebnis = Spiel_1()
     } else if (Spiel == 2) {
-        Spiel = Spiel_2()
+        Ergebnis = Spiel_2()
     } else if (Spiel == 3) {
-        Spiel = Spiel_3()
+        Ergebnis = Spiel_3()
     } else if (Spiel == 4) {
-        Spiel = Spiel_4()
+        Ergebnis = Spiel_4()
     } else {
-        Spiel = 0
+        Ergebnis = 0
     }
-    if (Spiel) {
+    Spiel = 0
+    if (Ergebnis) {
         Bonbons_ausgeben()
     } else {
         Starte_Sound(5)
         Warte_auf_Soundende()
+    }
+})
+control.inBackground(function () {
+    while (true) {
+        if (Spiel == 2) {
+            Tastenmatrix.setPixelColor(Pixel, neopixel.rgb(halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 1), 0, 0))
+            Tastenmatrix.show()
+        } else {
+        	
+        }
+        basic.pause(100)
     }
 })
