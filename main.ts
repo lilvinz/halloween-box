@@ -28,6 +28,9 @@ function Spiel_1 () {
         return 0
     }
 }
+function Spiel_Hintergrund_4 () {
+	
+}
 function Spiel_2 () {
     HalloweenKeypad.clearEventQueue()
     Timeout = 20000
@@ -98,6 +101,7 @@ function Bonbonausgabe_Hintergrund () {
 }
 function Bonbons_ausgeben () {
     Starte_Sound(8)
+    Spiel = 99
     Kreis.showRainbow(1, 360)
     Mindestmenge = 2
     Anzahl_Bonbon = 0
@@ -139,6 +143,9 @@ function Bonbons_ausgeben () {
 input.onButtonPressed(Button.A, function () {
     Bonbons_ausgeben()
 })
+function Spiel_Hintergrund_3 () {
+	
+}
 control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, EventBusValue.MICROBIT_PIN_EVT_FALL, function () {
     Ein_Bonbon_erkannt = 1
     Anzahl_Bonbon += 1
@@ -168,7 +175,10 @@ function Spielstart () {
     Tastenmatrix.show()
 }
 function Attraktion () {
-    HalloweenKeypad.clearEventQueue()
+    Spiel = 98
+    // Warte bis der Hintergrund läuft
+    basic.pause(100)
+    HalloweenKeypad.initialize()
     while (HalloweenKeypad.getLastKeyPressed() == -1) {
         Attraktionsmodus = randint(1, 3)
         Timeout = 60000
@@ -229,6 +239,9 @@ function Attraktion () {
         	
         }
     }
+    Spiel = 0
+    // Warte bis der Hintergrund fertig verarbeitet ist.
+    basic.pause(100)
 }
 function Spiel_3 () {
     return 0
@@ -294,12 +307,12 @@ let Geprüfte_Lautstärke = 0
 let Attraktion_Helfer = 0
 let Attraktionsmodus = 0
 let Spielstart_Bild = 0
-let Spiel = 0
 let Ein_Bonbon_erkannt = 0
 let Ausgabe_Dauer_bis_Bonbon = 0
 let Ausgabe_Startzeit = 0
 let Anzahl_Bonbon = 0
 let Mindestmenge = 0
+let Spiel = 0
 let Pixel = 0
 let Ergebnis = 0
 let Fortschritt = 0
@@ -325,11 +338,7 @@ radio.setTransmitPower(7)
 radio.setFrequencyBand(0)
 basic.forever(function () {
     Tastenmatrix.clear()
-    Spiel = 98
     Attraktion()
-    Spiel = 0
-    // Warte bis der Hintergrund fertig verarbeitet ist.
-    basic.pause(100)
     Spielstart()
     Spiel = randint(1, 2)
     if (Spiel == 1) {
@@ -347,7 +356,6 @@ basic.forever(function () {
     // Warte bis der Hintergrund fertig verarbeitet ist.
     basic.pause(100)
     if (Ergebnis) {
-        Spiel = 99
         Bonbons_ausgeben()
     } else {
         halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
@@ -361,6 +369,10 @@ control.inBackground(function () {
             Spiel_Hintergrund_1()
         } else if (Spiel == 2) {
             Spiel_Hintergrund_2()
+        } else if (Spiel == 3) {
+            Spiel_Hintergrund_3()
+        } else if (Spiel == 4) {
+            Spiel_Hintergrund_4()
         } else if (Spiel == 99) {
             Bonbonausgabe_Hintergrund()
         } else if (Spiel == 98) {
