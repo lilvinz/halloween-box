@@ -97,4 +97,15 @@ namespace halloween {
             [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(255, 0, 0), 0], [neopixel.rgb(0, 0, 0), 255], [neopixel.rgb(255, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0]
         ]
     }
+
+    //% block
+    export function Zuckerstange2(): number[][] {
+        return [
+            [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 255], [neopixel.rgb(0, 0, 0), 0],
+            [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(255, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0],
+            [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 255], [neopixel.rgb(0, 0, 0), 0],
+            [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(255, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(255, 0, 0), 0], [neopixel.rgb(0, 0, 0), 0],
+            [neopixel.rgb(0, 0, 0), 0], [neopixel.rgb(0, 0, 0), 255], [neopixel.rgb(255, 0, 0), 0], [neopixel.rgb(0, 0, 0), 255], [neopixel.rgb(0, 0, 0), 0]
+        ]
+    }
 }

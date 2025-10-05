@@ -6,7 +6,7 @@
         "radio": "*",
         "microphone": "*",
         "neopixel": "github:microsoft/pxt-neopixel#v0.7.6",
-        "halloween-keypad": "github:lilvinz/pxt-halloween-keypad#f93a3cc32d9bc8c8e7e74dd723f1d5175efe77fa",
+        "halloween-keypad": "github:lilvinz/pxt-halloween-keypad#40ca3d284cbb7862188c557816f0fca2531bd991",
         "servo": "*"
     },
     "files": [
