@@ -1,5 +1,34 @@
 function Spiel_1 () {
-    return 0
+    HalloweenKeypad.clearEventQueue()
+    PixelListe = []
+    for (let Index = 0; Index <= 25; Index++) {
+        PixelListe.push(1)
+    }
+    Timer = control.millis()
+    Fortschritt = 0
+    Tastenmatrix.showRainbow(1, 360)
+    Tastenmatrix.show()
+    while (Fortschritt < 25 && control.millis() - Timer < 10000) {
+        Ergebnis = HalloweenKeypad.waitForAnyKey(50)
+        if (Ergebnis >= 0) {
+            serial.writeLine(convertToText(Ergebnis))
+            if (PixelListe[Ergebnis] == 1) {
+                Starte_Sound(7)
+                PixelListe[Ergebnis] = 0
+                Tastenmatrix.setPixelColor(Ergebnis, neopixel.colors(NeoPixelColors.Black))
+                Tastenmatrix.setPixelWhiteLED(Ergebnis, 0)
+                Tastenmatrix.show()
+                Fortschritt += 1
+            } else {
+                Starte_Sound(2)
+            }
+        }
+    }
+    if (Fortschritt == 25) {
+        return 1
+    } else {
+        return 0
+    }
 }
 control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, EventBusValue.MICROBIT_PIN_EVT_RISE, function () {
     Tastenmatrix.setPixelColor(20, neopixel.colors(NeoPixelColors.Black))
@@ -9,14 +38,16 @@ function Spiel_2 () {
     return 0
 }
 function Warte_auf_Soundende () {
+    // Hier müssen wir warten, falls der Player gerade erst los geschickt wurde.
+    basic.pause(50)
     while (Sound_spielt()) {
-        basic.pause(100)
+        basic.pause(10)
     }
 }
-function Bild_anzeigen (RGB: number[], W: number[]) {
+function Bild_anzeigen (RGBW: number[][]) {
     for (let Index = 0; Index <= 24; Index++) {
-        Tastenmatrix.setPixelWhiteLED(Index, W[Index])
-        Tastenmatrix.setPixelColor(Index, RGB[Index])
+        Tastenmatrix.setPixelColor(Index, RGBW[Index][0])
+        Tastenmatrix.setPixelWhiteLED(Index, RGBW[Index][1])
     }
     Tastenmatrix.show()
 }
@@ -38,6 +69,9 @@ function Bonbons_ausgeben () {
         while (Anzahl_Bonbon < Mindestmenge && (Ein_Bonbon_erkannt == 0 && Ausgabe_Dauer_bis_Bonbon < 10000)) {
             Ausgabe_Dauer_bis_Bonbon = control.millis() - Ausgabe_Startzeit
             basic.pause(5)
+            if (!(Sound_spielt())) {
+                Starte_Sound(8)
+            }
         }
         servos.P0.run(-60)
         basic.pause(200)
@@ -51,20 +85,14 @@ function Bonbons_ausgeben () {
     Kreis.clear()
     Warte_auf_Soundende()
     if (Anzahl_Bonbon < Mindestmenge) {
-        Starte_Sound(1)
+        Starte_Sound(2)
+        Warte_auf_Soundende()
+        Starte_Sound(2)
+        Warte_auf_Soundende()
+        Starte_Sound(2)
+        Warte_auf_Soundende()
     }
 }
-HalloweenKeypad.onKeyPressed(20, function () {
-    control.raiseEvent(
-    EventBusSource.MICROBIT_ID_BUTTON_A,
-    EventBusValue.MICROBIT_BUTTON_EVT_CLICK
-    )
-})
-HalloweenKeypad.onAnyKeyPressed(function (key2) {
-    Tastenmatrix.setPixelColor(key2, neopixel.colors(NeoPixelColors.Red))
-    Tastenmatrix.setMatrixColor(HalloweenKeypad.getKeyColumn(key2), HalloweenKeypad.getKeyRow(key2), neopixel.colors(NeoPixelColors.Red))
-    Tastenmatrix.show()
-})
 input.onButtonPressed(Button.A, function () {
     Bonbons_ausgeben()
 })
@@ -83,27 +111,36 @@ function Spiel_4 () {
 }
 function Spielstart () {
     Starte_Sound(6)
-    Warte_auf_Soundende()
+    Bild_anzeigen(halloween.Geist())
+    basic.pause(500)
+    Bild_anzeigen(halloween.Zuckerstange())
+    basic.pause(500)
+    Bild_anzeigen(halloween.Totenkopf())
+    basic.pause(500)
+    Bild_anzeigen(halloween.OK())
+    basic.pause(500)
+    Bild_anzeigen(halloween.Kürbis())
+    basic.pause(500)
+    Bild_anzeigen(halloween.Herz())
+    basic.pause(500)
+    Tastenmatrix.clear()
 }
 function Attraktion () {
-    HalloweenKeypad.initialize()
-    while (HalloweenKeypad.getLastKeyPressed() == -1) {
+    HalloweenKeypad.clearEventQueue()
+    while (HalloweenKeypad.waitForAnyKey(10) == -1) {
         if (!(Sound_spielt())) {
-            Starte_Sound(randint(10, 15))
+            Starte_Sound(randint(9, 15))
         }
         Tastenmatrix.showBarGraph(input.soundLevel(), 255)
         Tastenmatrix.show()
-        basic.pause(10)
     }
 }
-HalloweenKeypad.onAnyKeyReleased(function (key) {
-    Tastenmatrix.setPixelColor(key, neopixel.colors(NeoPixelColors.Black))
-    Tastenmatrix.setMatrixColor(HalloweenKeypad.getKeyColumn(key), HalloweenKeypad.getKeyRow(key), neopixel.colors(NeoPixelColors.Black))
-    Tastenmatrix.show()
-})
 function Spiel_3 () {
     return 0
 }
+input.onButtonPressed(Button.B, function () {
+	
+})
 input.onGesture(Gesture.Shake, function () {
     Starte_Sound(15)
 })
@@ -128,7 +165,7 @@ function Starte_Sound (num: number) {
     } else {
         pins.setPull(DigitalPin.P16, PinPullMode.PullDown)
     }
-    basic.pause(100)
+    basic.pause(50)
     pins.setPull(DigitalPin.P13, PinPullMode.PullNone)
     pins.setPull(DigitalPin.P14, PinPullMode.PullNone)
     pins.setPull(DigitalPin.P15, PinPullMode.PullNone)
@@ -156,22 +193,28 @@ let Ausgabe_Dauer_bis_Bonbon = 0
 let Ausgabe_Startzeit = 0
 let Anzahl_Bonbon = 0
 let Mindestmenge = 0
+let Ergebnis = 0
+let Fortschritt = 0
+let Timer = 0
+let PixelListe: number[] = []
 let Tastenmatrix: neopixel.Strip = null
 let Kreis: neopixel.Strip = null
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
-Verstärker(20)
+Verstärker(18)
 HalloweenKeypad.initialize()
 Kreis = neopixel.create(DigitalPin.P12, 35, NeoPixelMode.RGB)
 Tastenmatrix = neopixel.create(DigitalPin.P1, 25, NeoPixelMode.RGBW)
-Tastenmatrix.showRainbow(1, 360)
-Tastenmatrix.show()
 Tastenmatrix.setMatrixWidth(5)
+loops.everyInterval(50, function () {
+    Kreis.rotate(1)
+    Kreis.show()
+})
 basic.forever(function () {
     Attraktion()
     Spielstart()
-    Spiel = randint(1, 10)
+    Spiel = randint(1, 1)
     if (Spiel == 1) {
         Spiel = Spiel_1()
     } else if (Spiel == 2) {
@@ -187,5 +230,6 @@ basic.forever(function () {
         Bonbons_ausgeben()
     } else {
         Starte_Sound(5)
+        Warte_auf_Soundende()
     }
 })
