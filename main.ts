@@ -79,7 +79,7 @@ function Warte_auf_Soundende () {
 function Spiel_Hintergrund_1 () {
     for (let Index = 0; Index <= 25; Index++) {
         if (PixelListe[Index]) {
-            Tastenmatrix.setPixelColor(Index, neopixel.rgb(halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 1), 0, 0))
+            Tastenmatrix.setPixelColor(Index, neopixel.rgb(halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5), 0, 0))
         }
     }
     Tastenmatrix.show()
@@ -142,7 +142,7 @@ function Sound_spielt () {
     return pins.digitalReadPin(DigitalPin.P9) == 1
 }
 function Spiel_Hintergrund_2 () {
-    Tastenmatrix.setPixelColor(Pixel, neopixel.rgb(0, 0, halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 1)))
+    Tastenmatrix.setPixelColor(Pixel, neopixel.rgb(0, 0, halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5)))
     Tastenmatrix.show()
 }
 function Spiel_4 () {
@@ -180,6 +180,9 @@ input.onButtonPressed(Button.B, function () {
 })
 input.onGesture(Gesture.Shake, function () {
     Starte_Sound(15)
+})
+radio.onReceivedValue(function (name, value) {
+	
 })
 function Starte_Sound (num: number) {
     if (Math.floor(num / 1) % 2 == 1) {
@@ -225,12 +228,13 @@ function Verstärker (Lautstärke: number) {
     if (Geprüfte_Lautstärke < 0) {
         Geprüfte_Lautstärke = 0
     }
-    if (Geprüfte_Lautstärke > 63) {
-        Geprüfte_Lautstärke = 63
+    if (Geprüfte_Lautstärke > 255) {
+        Geprüfte_Lautstärke = 255
     }
+    Geprüfte_Lautstärke = halloween.stevensLawBrightness(Geprüfte_Lautstärke, 0.67)
     pins.i2cWriteNumber(
     75,
-    Geprüfte_Lautstärke,
+    Math.map(Geprüfte_Lautstärke, 0, 255, 0, 63),
     NumberFormat.UInt8LE,
     false
     )
@@ -254,7 +258,7 @@ let Kreis: neopixel.Strip = null
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
-Verstärker(18)
+Verstärker(40)
 HalloweenKeypad.initialize()
 Kreis = neopixel.create(DigitalPin.P12, 35, NeoPixelMode.RGB)
 Kreis.clear()
@@ -263,6 +267,9 @@ Tastenmatrix = neopixel.create(DigitalPin.P1, 25, NeoPixelMode.RGBW)
 Tastenmatrix.setMatrixWidth(5)
 Tastenmatrix.clear()
 Tastenmatrix.show()
+radio.setGroup(1)
+radio.setTransmitPower(7)
+radio.setFrequencyBand(0)
 basic.forever(function () {
     Tastenmatrix.clear()
     Attraktion()
