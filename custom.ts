@@ -6,7 +6,8 @@ namespace player_pro {
 
     let isConnected = false
     let lastPlayTimestamp = 0
-    let playmode = 0
+    let playertime = -1
+    let last_playertime = -1
 
     /**
      * Connect to the DFPlayer Pro module using UART.
@@ -27,19 +28,26 @@ namespace player_pro {
         serial.redirect(pinTX, pinRX, BaudRate.BaudRate115200)
         isConnected = true
         basic.pause(500)
+        // Set to music mode
+        serial.writeString("AT+FUNCTION=1\r\n")
+        serial.readLine()
+        basic.pause(50)
         // Disable internal amplifier
         serial.writeString("AT+AMP=OFF\r\n")
-        // serial.readLine()
+        serial.readLine()
         basic.pause(50)
         // Disable prompt
         serial.writeString("AT+PROMPT=OFF\r\n")
-        // serial.readLine()
+        serial.readLine()
         basic.pause(50)
         // Set volume
         serial.writeString("AT+VOL=30\r\n")
-        // serial.readLine()
+        serial.readLine()
         basic.pause(50)
-        playmode = 0
+        // Set play mode to single
+        serial.writeString("AT+PLAYMODE=3\r\n")
+        serial.readLine()
+        basic.pause(50)
     }
 
     /**
@@ -57,16 +65,10 @@ namespace player_pro {
     //% num.min=1 num.max=255
     export function play_sound(num: number) {
         if (!isConnected) return
-        if (playmode != 3) {
-            // Set play mode to single
-            serial.writeString("AT+PLAYMODE=3\r\n")
-            // serial.readLine()
-            basic.pause(50)
-            playmode = 3
-        }
         serial.writeString("AT+PLAYFILE=/" + convertToText(num) + ".mp3\r\n")
-        // serial.readLine()
+        serial.readLine()
         lastPlayTimestamp = control.millis()
+        playertime = -1
     }
 
     /**
@@ -84,16 +86,10 @@ namespace player_pro {
     //% num.min=1 num.max=255
     export function play_music(num: number) {
         if (!isConnected) return
-        if (playmode != 5) {
-            // Set play mode to repeat folder
-            serial.writeString("AT+PLAYMODE=5\r\n")
-            // serial.readLine()
-            basic.pause(50)
-            playmode = 5
-        }
         serial.writeString("AT+PLAYFILE=/music/" + convertToText(num) + ".mp3\r\n")
-        // serial.readLine()
+        serial.readLine()
         lastPlayTimestamp = control.millis()
+        playertime = -1
     }
 
     /**
@@ -129,6 +125,55 @@ namespace player_pro {
         while (control.millis() - lastPlayTimestamp < ms) {
             basic.pause(5)
         }
+    }
+
+    /**
+     * Get the current playback time from the DFPlayer Pro.
+     * 
+     * This queries the DFPlayer Pro using `AT+QUERY=3`, which returns
+     * the current playtime in milliseconds of the track being played.
+     * 
+     * Returns 0 if no track is playing or if the response is invalid.
+     *
+     * @returns current playback time in milliseconds
+     */
+    //% blockId="dfplayerpro_get_playtime"
+    //% block="current playback time (ms)"
+    //% weight=80 blockGap=12
+    export function get_playtime(): number {
+        if (!isConnected) return 0
+        serial.writeString("AT+QUERY=3\r\n")
+        basic.pause(50)
+        let reply = serial.readLine()
+        basic.showString(reply)
+        if (reply == null || reply.length == 0) return 0
+        let playtime = parseInt(reply)
+        if (isNaN(playtime)) return 0
+        return playtime
+    }
+
+    /**
+     * Check if the DFPlayer Pro playback time has advanced
+     * since the last check.
+     * 
+     * This can be used to detect whether playback is progressing.
+     * Returns `true` if the playtime has changed since the last call,
+     * otherwise `false`.
+     *
+     * Useful for checking if playback is active or stalled.
+     *
+     * @returns true if playback time increased since last check
+     */
+    //% blockId="dfplayerpro_playtime_advanced"
+    //% block="playback time advanced?"
+    //% weight=78
+    export function get_playtime_advanced(): boolean {
+        if (!isConnected) return false
+
+        last_playertime = playertime
+        playertime = get_playtime()
+
+        return playertime > last_playertime
     }
 }
 

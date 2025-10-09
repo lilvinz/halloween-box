@@ -169,9 +169,18 @@ function Spielstart() {
     Tastenmatrix.clear()
     Tastenmatrix.show()
 }
+let playtime_polling_time = 0
+function Attraktion_Hintergrund() {
+    if (control.millis() > playtime_polling_time + 2000) {
+        playtime_polling_time = control.millis()
+        if (player_pro.get_playtime_advanced() == false) {
+            player_pro.play_music(randint(1, 6))
+        }
+    }
+}
 function Attraktion() {
+    player_pro.play_music(randint(1, 6))
     Spiel = 98
-    player_pro.play_music(randint(1,6))
     HalloweenKeypad.initialize()
     while (HalloweenKeypad.getLastKeyPressed() == -1) {
         Attraktionsmodus = randint(1, 3)
@@ -198,14 +207,9 @@ function Attraktion() {
             }
         } else if (Attraktionsmodus == 3) {
             Attraktion_Helfer = randint(0, 3)
-            Attraktion_Helfer2 = 0
             if (Attraktion_Helfer == 0) {
                 player_pro.play_sound(12)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
-                    if (Attraktion_Helfer2 == 0 && player_pro.millis_since_last_play() > 3000) {
-                        Attraktion_Helfer2 = 1
-                        player_pro.play_music(randint(1, 6))
-                    }
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Totenkopf(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
@@ -213,10 +217,6 @@ function Attraktion() {
             } else if (Attraktion_Helfer == 1) {
                 player_pro.play_sound(8)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
-                    if (Attraktion_Helfer2 == 0 && player_pro.millis_since_last_play() > 3000) {
-                        Attraktion_Helfer2 = 1
-                        player_pro.play_music(randint(1, 6))
-                    }
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Herz(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
@@ -224,21 +224,13 @@ function Attraktion() {
             } else if (Attraktion_Helfer == 2) {
                 player_pro.play_sound(11)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
-                    if (Attraktion_Helfer2 == 0 && player_pro.millis_since_last_play() > 3000) {
-                        Attraktion_Helfer2 = 1
-                        player_pro.play_music(randint(1, 6))
-                    }
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Kürbis(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else if (Attraktion_Helfer == 3) {
-                player_pro.play_sound(15)
+                player_pro.play_sound(14)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
-                    if (Attraktion_Helfer2 == 0 && player_pro.millis_since_last_play() > 3000) {
-                        Attraktion_Helfer2 = 1
-                        player_pro.play_music(randint(1, 6))
-                    }
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, Attraktion_Helfer, true)
                     basic.pause(10)
@@ -251,6 +243,8 @@ function Attraktion() {
         }
     }
     Spiel = 0
+    // Warte auf Hintergrundtask
+    basic.pause(100)
 }
 function Spiel_3() {
     return 0
@@ -283,9 +277,6 @@ radio.onReceivedValue(function (name, value) {
 
     }
 })
-function Attraktion_Hintergrund() {
-
-}
 function Verstärker(Lautstärke: number) {
     Geprüfte_Lautstärke = Lautstärke
     if (Geprüfte_Lautstärke < 0) {
@@ -342,7 +333,7 @@ Tastenmatrix.show()
 radio.setGroup(152)
 radio.setTransmitPower(7)
 radio.setFrequencyBand(46)
-player_pro.connect(SerialPin.P16,SerialPin.P15)
+player_pro.connect(SerialPin.P16, SerialPin.P15)
 basic.forever(function () {
     Tastenmatrix.clear()
     Attraktion()
