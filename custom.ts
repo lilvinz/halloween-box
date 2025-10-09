@@ -1,4 +1,139 @@
 /**
+ * DFPlayer Pro control extension
+ */
+//% weight=100 color=#0fbc11 icon="\uf0c3" block="DFPlayer Pro"
+namespace player_pro {
+
+    let isConnected = false
+    let lastPlayTimestamp = 0
+    let playmode = 0
+
+    /**
+     * Connect to the DFPlayer Pro module using UART.
+     * 
+     * This must be called before using any other functions.
+     * It automatically sets up the serial connection and disables
+     * the onboard amplifier to prepare the module for external use.
+     *
+     * @param pinTX the TX pin on micro:bit (connected to RX on DFPlayer Pro), e.g. SerialPin.P0
+     * @param pinRX the RX pin on micro:bit (connected to TX on DFPlayer Pro), e.g. SerialPin.P1
+     */
+    //% blockId="dfplayerpro_connect"
+    //% block="connect DFPlayer Pro TX %pinTX|RX %pinRX"
+    //% weight=100 blockGap=20
+    //% pinTX.defl=SerialPin.P0
+    //% pinRX.defl=SerialPin.P1
+    export function connect(pinTX: SerialPin = SerialPin.P0, pinRX: SerialPin = SerialPin.P1): void {
+        serial.redirect(pinTX, pinRX, BaudRate.BaudRate115200)
+        isConnected = true
+        basic.pause(500)
+        // Disable internal amplifier
+        serial.writeString("AT+AMP=OFF\r\n")
+        // serial.readLine()
+        basic.pause(50)
+        // Disable prompt
+        serial.writeString("AT+PROMPT=OFF\r\n")
+        // serial.readLine()
+        basic.pause(50)
+        // Set volume
+        serial.writeString("AT+VOL=30\r\n")
+        // serial.readLine()
+        basic.pause(50)
+        playmode = 0
+    }
+
+    /**
+     * Play a sound file by its numeric filename.
+     * 
+     * The DFPlayer Pro will play the file in the root directory
+     * matching the given number (starting from 1). Files must follow
+     * the naming convention: `1.mp3`, `2.mp3`, etc.
+     *
+     * @param num the track number to play, e.g. 1
+     */
+    //% blockId="dfplayerpro_play_sound"
+    //% block="play sound number %num"
+    //% weight=90 blockGap=12
+    //% num.min=1 num.max=255
+    export function play_sound(num: number) {
+        if (!isConnected) return
+        if (playmode != 3) {
+            // Set play mode to single
+            serial.writeString("AT+PLAYMODE=3\r\n")
+            // serial.readLine()
+            basic.pause(50)
+            playmode = 3
+        }
+        serial.writeString("AT+PLAYFILE=/" + convertToText(num) + ".mp3\r\n")
+        // serial.readLine()
+        lastPlayTimestamp = control.millis()
+    }
+
+    /**
+     * Play a music track from the /music folder by its number.
+     * 
+     * The DFPlayer Pro will play the file located in the `/music/` directory
+     * with the given number (starting from 1). Files must be named following
+     * DFPlayer Pro conventions, e.g. `1.mp3`, `2.mp3`, etc.
+     *
+     * @param num the music track number to play, e.g. 1
+     */
+    //% blockId="dfplayerpro_play_music"
+    //% block="play music track number %num"
+    //% weight=89 blockGap=12
+    //% num.min=1 num.max=255
+    export function play_music(num: number) {
+        if (!isConnected) return
+        if (playmode != 5) {
+            // Set play mode to repeat folder
+            serial.writeString("AT+PLAYMODE=5\r\n")
+            // serial.readLine()
+            basic.pause(50)
+            playmode = 5
+        }
+        serial.writeString("AT+PLAYFILE=/music/" + convertToText(num) + ".mp3\r\n")
+        // serial.readLine()
+        lastPlayTimestamp = control.millis()
+    }
+
+    /**
+     * Get the elapsed time in milliseconds since the last play command.
+     * 
+     * Returns 0 if no playback command has been issued yet.
+     *
+     * @returns milliseconds since the last play command
+     */
+    //% blockId="dfplayerpro_elapsed_since_play"
+    //% block="milliseconds since last play"
+    //% weight=80 blockGap=12
+    export function millis_since_last_play(): number {
+        if (lastPlayTimestamp == 0) return 0
+        return control.millis() - lastPlayTimestamp
+    }
+
+    /**
+     * Wait until a specified number of milliseconds have passed
+     * since the last play command.
+     * 
+     * This is useful for sequencing sounds or synchronizing
+     * other actions to playback timing.
+     *
+     * @param ms the time in milliseconds to wait since the last play command, e.g. 500
+     */
+    //% blockId="dfplayerpro_wait_since_play"
+    //% block="wait until %ms|ms since last play"
+    //% weight=79
+    //% ms.min=0 ms.max=60000
+    export function wait_until_elapsed(ms: number) {
+        if (lastPlayTimestamp == 0) return
+        while (control.millis() - lastPlayTimestamp < ms) {
+            basic.pause(5)
+        }
+    }
+}
+
+
+/**
  * Custom blocks
  */
 //% weight=100 color=#0fbc11 icon="\uf0c3"
