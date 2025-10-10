@@ -1,4 +1,4 @@
-function Spiel_1() {
+function Spiel_1 () {
     HalloweenKeypad.clearEventQueue()
     Timeout = 10000
     PixelListe = []
@@ -28,10 +28,10 @@ function Spiel_1() {
         return 0
     }
 }
-function Spiel_Hintergrund_4() {
-
+function Spiel_Hintergrund_4 () {
+	
 }
-function Spiel_2() {
+function Spiel_2 () {
     HalloweenKeypad.clearEventQueue()
     Timeout = 20000
     Fortschritt = 0
@@ -72,7 +72,7 @@ function Spiel_2() {
         return 0
     }
 }
-function Spiel_Hintergrund_1() {
+function Spiel_Hintergrund_1 () {
     for (let Index2 = 0; Index2 <= 25; Index2++) {
         if (PixelListe[Index2]) {
             Tastenmatrix.setPixelColor(Index2, neopixel.rgb(halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5), 0, 0))
@@ -80,7 +80,7 @@ function Spiel_Hintergrund_1() {
     }
     Tastenmatrix.show()
 }
-function Bonbonausgabe_Hintergrund() {
+function Bonbonausgabe_Hintergrund () {
     if (player_pro.millis_since_last_play() > 4000) {
         player_pro.play_sound(7)
     }
@@ -92,7 +92,7 @@ function Bonbonausgabe_Hintergrund() {
         halloween.Bild_anzeigen(halloween.Zuckerstange2(), Tastenmatrix, 255, 255, true)
     }
 }
-function Bonbons_ausgeben() {
+function Bonbons_ausgeben () {
     player_pro.play_sound(7)
     Spiel = 99
     Kreis.showRainbow(1, 360)
@@ -141,21 +141,21 @@ input.onButtonPressed(Button.A, function () {
     }
     Verstärker(Lautstärke)
 })
-function Spiel_Hintergrund_3() {
-
+function Spiel_Hintergrund_3 () {
+	
 }
 control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, EventBusValue.MICROBIT_PIN_EVT_FALL, function () {
     Ein_Bonbon_erkannt = 1
     Anzahl_Bonbon += 1
 })
-function Spiel_Hintergrund_2() {
+function Spiel_Hintergrund_2 () {
     Tastenmatrix.setPixelColor(Pixel, neopixel.rgb(0, 0, halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5)))
     Tastenmatrix.show()
 }
-function Spiel_4() {
+function Spiel_4 () {
     return 0
 }
-function Spielstart() {
+function Spielstart () {
     player_pro.play_sound(9)
     Spielstart_Bild = randint(0, 2)
     if (Spielstart_Bild == 0) {
@@ -169,16 +169,7 @@ function Spielstart() {
     Tastenmatrix.clear()
     Tastenmatrix.show()
 }
-let playtime_polling_time = 0
-function Attraktion_Hintergrund() {
-    if (control.millis() > playtime_polling_time + 2000) {
-        playtime_polling_time = control.millis()
-        if (player_pro.get_playtime_advanced() == false) {
-            player_pro.play_music(randint(1, 6))
-        }
-    }
-}
-function Attraktion() {
+function Attraktion () {
     player_pro.play_music(randint(1, 6))
     Spiel = 98
     HalloweenKeypad.initialize()
@@ -236,17 +227,17 @@ function Attraktion() {
                     basic.pause(10)
                 }
             } else {
-
+            	
             }
         } else {
-
+        	
         }
     }
     Spiel = 0
     // Warte auf Hintergrundtask
     basic.pause(100)
 }
-function Spiel_3() {
+function Spiel_3 () {
     return 0
 }
 input.onButtonPressed(Button.AB, function () {
@@ -264,20 +255,15 @@ input.onButtonPressed(Button.B, function () {
 input.onGesture(Gesture.Shake, function () {
     player_pro.play_sound(15)
 })
-radio.onReceivedValue(function (name, value) {
-    if (name == "events") {
-        event_source = value
-    } else if (name == "eventv") {
-        event_value = value
-        control.raiseEvent(
-            event_source,
-            event_value
-        )
-    } else {
-
+function Attraktion_Hintergrund () {
+    if (control.millis() > playtime_polling_time + 2000) {
+        playtime_polling_time = control.millis()
+        if (player_pro.get_playtime_advanced() == false) {
+            player_pro.play_music(randint(1, 6))
+        }
     }
-})
-function Verstärker(Lautstärke: number) {
+}
+function Verstärker (Lautstärke: number) {
     Geprüfte_Lautstärke = Lautstärke
     if (Geprüfte_Lautstärke < 0) {
         Geprüfte_Lautstärke = 0
@@ -287,21 +273,17 @@ function Verstärker(Lautstärke: number) {
     }
     Geprüfte_Lautstärke = halloween.stevensLawBrightness(Geprüfte_Lautstärke, 0.67)
     pins.i2cWriteNumber(
-        75,
-        Math.map(Geprüfte_Lautstärke, 0, 255, 0, 63),
-        NumberFormat.UInt8LE,
-        false
+    75,
+    Math.map(Geprüfte_Lautstärke, 0, 255, 0, 63),
+    NumberFormat.UInt8LE,
+    false
     )
 }
 let Geprüfte_Lautstärke = 0
-let event_value = 0
-let event_source = 0
+let playtime_polling_time = 0
 let Attraktion_Helfer = 0
-let Attraktion_Helfer2 = 0
 let Attraktionsmodus = 0
 let Spielstart_Bild = 0
-let Sound_Startzeit = 0
-let Sound_Zeit_seit_Start_ms = 0
 let Ein_Bonbon_erkannt = 0
 let Ausgabe_Dauer_bis_Bonbon = 0
 let Ausgabe_Startzeit = 0
@@ -317,6 +299,11 @@ let Timeout = 0
 let Tastenmatrix: neopixel.Strip = null
 let Kreis: neopixel.Strip = null
 let Lautstärke = 0
+let Sound_Zeit_seit_Start_ms = 0
+let Sound_Startzeit = 0
+let Attraktion_Helfer2 = 0
+let event_source = 0
+let event_value = 0
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
@@ -381,7 +368,7 @@ control.inBackground(function () {
         } else if (Spiel == 98) {
             Attraktion_Hintergrund()
         } else {
-
+        	
         }
         basic.pause(20)
     }

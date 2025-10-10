@@ -8,6 +8,11 @@ namespace player_pro {
     let lastPlayTimestamp = 0
     let playertime = -1
     let last_playertime = -1
+    let serial_last_line = ""
+
+    serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function() {
+        serial_last_line = serial.readLine()
+    })
 
     /**
      * Connect to the DFPlayer Pro module using UART.
@@ -30,23 +35,18 @@ namespace player_pro {
         basic.pause(500)
         // Set to music mode
         serial.writeString("AT+FUNCTION=1\r\n")
-        serial.readLine()
         basic.pause(50)
         // Disable internal amplifier
         serial.writeString("AT+AMP=OFF\r\n")
-        serial.readLine()
         basic.pause(50)
         // Disable prompt
         serial.writeString("AT+PROMPT=OFF\r\n")
-        serial.readLine()
         basic.pause(50)
         // Set volume
         serial.writeString("AT+VOL=30\r\n")
-        serial.readLine()
         basic.pause(50)
         // Set play mode to single
         serial.writeString("AT+PLAYMODE=3\r\n")
-        serial.readLine()
         basic.pause(50)
     }
 
@@ -66,7 +66,6 @@ namespace player_pro {
     export function play_sound(num: number) {
         if (!isConnected) return
         serial.writeString("AT+PLAYFILE=/" + convertToText(num) + ".mp3\r\n")
-        serial.readLine()
         lastPlayTimestamp = control.millis()
         playertime = -1
     }
@@ -87,7 +86,6 @@ namespace player_pro {
     export function play_music(num: number) {
         if (!isConnected) return
         serial.writeString("AT+PLAYFILE=/music/" + convertToText(num) + ".mp3\r\n")
-        serial.readLine()
         lastPlayTimestamp = control.millis()
         playertime = -1
     }
@@ -142,12 +140,15 @@ namespace player_pro {
     //% weight=80 blockGap=12
     export function get_playtime(): number {
         if (!isConnected) return 0
+        serial_last_line = ""
         serial.writeString("AT+QUERY=3\r\n")
-        basic.pause(50)
-        let reply = serial.readLine()
-        basic.showString(reply)
-        if (reply == null || reply.length == 0) return 0
-        let playtime = parseInt(reply)
+        led.plot(0, 0)
+        while (serial_last_line == "") {
+            basic.pause(5)
+        }
+        led.unplot(0, 0)
+        if (serial_last_line == null || serial_last_line.length == 0) return 0
+        let playtime = parseInt(serial_last_line)
         if (isNaN(playtime)) return 0
         return playtime
     }
