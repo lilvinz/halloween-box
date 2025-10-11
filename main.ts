@@ -80,8 +80,23 @@ function Spiel_Hintergrund_1 () {
     }
     Tastenmatrix.show()
 }
+function Attraktion_Hintergrund() {
+    if (control.millis() > playtime_polling_time + 2000) {
+        playtime_polling_time = control.millis()
+        if (player_pro.get_playtime_advanced() == false) {
+            player_pro.play_music(randint(1, 6))
+        }
+    }
+    if (control.millis() - Ende_Bonbonausgabe < 15000) {
+        Kreis.rotate(1)
+        Kreis.show()
+    } else {
+        Kreis.clear()
+        Kreis.show()
+    }
+}
 function Bonbonausgabe_Hintergrund () {
-    if (player_pro.millis_since_last_play() > 4000) {
+    if (player_pro.millis_since_last_play() > 3000) {
         player_pro.play_sound(7)
     }
     Kreis.rotate(1)
@@ -119,10 +134,9 @@ function Bonbons_ausgeben () {
             break;
         }
     }
+    Ende_Bonbonausgabe = control.millis()
     Spiel = 0
-    Kreis.clear()
-    Kreis.show()
-    player_pro.wait_until_elapsed(5000)
+    player_pro.wait_until_elapsed(3000)
     radio.sendValue("dispens", Anzahl_Bonbon)
     if (Anzahl_Bonbon < Mindestmenge) {
         halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
@@ -257,14 +271,6 @@ input.onGesture(Gesture.Shake, function () {
     player_pro.wait_until_elapsed(4000)
     Verstärker(Lautstärke)
 })
-function Attraktion_Hintergrund () {
-    if (control.millis() > playtime_polling_time + 2000) {
-        playtime_polling_time = control.millis()
-        if (player_pro.get_playtime_advanced() == false) {
-            player_pro.play_music(randint(1, 6))
-        }
-    }
-}
 function Verstärker (Lautstärke: number) {
     Geprüfte_Lautstärke = Lautstärke
     if (Geprüfte_Lautstärke < 0) {
@@ -291,6 +297,7 @@ let Ausgabe_Dauer_bis_Bonbon = 0
 let Ausgabe_Startzeit = 0
 let Anzahl_Bonbon = 0
 let Mindestmenge = 0
+let Ende_Bonbonausgabe = 0
 let Spiel = 0
 let Pixel = 0
 let Ergebnis = 0
