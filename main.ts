@@ -50,7 +50,7 @@ function Spiel_2 () {
                     Fortschritt += -1
                     Timeout = Timeout * 0.75
                     if (Fortschritt < 0) {
-                        player_pro.wait_until_elapsed(5000)
+                        player_pro.wait_until_elapsed(1500)
                         return 0
                     }
                 }
@@ -127,11 +127,11 @@ function Bonbons_ausgeben () {
     if (Anzahl_Bonbon < Mindestmenge) {
         halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
         player_pro.play_sound(13)
-        player_pro.wait_until_elapsed(2000)
+        player_pro.wait_until_elapsed(1500)
         player_pro.play_sound(13)
-        player_pro.wait_until_elapsed(2000)
+        player_pro.wait_until_elapsed(1500)
         player_pro.play_sound(13)
-        player_pro.wait_until_elapsed(2000)
+        player_pro.wait_until_elapsed(1500)
     }
 }
 input.onButtonPressed(Button.A, function () {
