@@ -252,7 +252,10 @@ input.onButtonPressed(Button.B, function () {
     Verstärker(Lautstärke)
 })
 input.onGesture(Gesture.Shake, function () {
+    Verstärker(100)
     player_pro.play_sound(15)
+    player_pro.wait_until_elapsed(4000)
+    Verstärker(Lautstärke)
 })
 function Attraktion_Hintergrund () {
     if (control.millis() > playtime_polling_time + 2000) {
