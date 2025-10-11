@@ -170,7 +170,6 @@ function Spielstart () {
     Tastenmatrix.show()
 }
 function Attraktion () {
-    player_pro.play_music(randint(1, 6))
     Spiel = 98
     HalloweenKeypad.initialize()
     while (HalloweenKeypad.getLastKeyPressed() == -1) {

@@ -105,7 +105,6 @@ namespace player_pro {
     //% block="milliseconds since last play"
     //% weight=80 blockGap=12
     export function millis_since_last_play(): number {
-        if (lastPlayTimestamp == 0) return 0
         return control.millis() - lastPlayTimestamp
     }
 
@@ -144,13 +143,14 @@ namespace player_pro {
     //% weight=80 blockGap=12
     export function get_playtime(): number {
         if (!isConnected) return 0
+
         serial_last_line = ""
         serial.writeString("AT+QUERY=3\r\n")
-        led.plot(0, 0)
-        while (serial_last_line == "") {
+        const timeout = control.millis()
+        while (serial_last_line == "" && control.millis() - timeout < 50) {
             basic.pause(5)
         }
-        led.unplot(0, 0)
+
         if (serial_last_line == null || serial_last_line.length == 0) return 0
         let playtime = parseInt(serial_last_line)
         if (isNaN(playtime)) return 0
@@ -175,10 +175,14 @@ namespace player_pro {
     export function get_playtime_advanced(): boolean {
         if (!isConnected) return false
 
+        // Enforce grace period after starting a track
+        if (millis_since_last_play() < 2000) return true
+
         last_playertime = playertime
         playertime = get_playtime()
 
-        return playertime > last_playertime
+        // Direct comparison to allow for failed reads
+        return playertime != last_playertime
     }
 }
 
