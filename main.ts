@@ -84,7 +84,7 @@ function Attraktion_Hintergrund() {
     if (control.millis() > playtime_polling_time + 2000) {
         playtime_polling_time = control.millis()
         if (player_pro.get_playtime_advanced() == false) {
-            player_pro.play_music(randint(1, 6))
+            player_pro.play_music(randint(1, 10))
         }
     }
     if (control.millis() - Ende_Bonbonausgabe < 15000) {
@@ -211,29 +211,26 @@ function Attraktion () {
             }
         } else if (Attraktionsmodus == 3) {
             Attraktion_Helfer = randint(0, 3)
+            player_pro.play_sound(randint(11, 21))
             if (Attraktion_Helfer == 0) {
-                player_pro.play_sound(12)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Totenkopf(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else if (Attraktion_Helfer == 1) {
-                player_pro.play_sound(8)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Herz(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else if (Attraktion_Helfer == 2) {
-                player_pro.play_sound(11)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Kürbis(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else if (Attraktion_Helfer == 3) {
-                player_pro.play_sound(14)
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
                     halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, Attraktion_Helfer, true)
@@ -316,7 +313,7 @@ let event_value = 0
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
-Lautstärke = 40
+Lautstärke = 60
 Verstärker(Lautstärke)
 HalloweenKeypad.initialize()
 Kreis = neopixel.create(DigitalPin.P12, 35, NeoPixelMode.RGB)
