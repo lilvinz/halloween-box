@@ -119,7 +119,7 @@ function Bonbons_ausgeben () {
         Ein_Bonbon_erkannt = 0
         servos.P0.run(-40)
         basic.pause(150)
-        servos.P0.run(15)
+        servos.P0.run(17)
         // Das ist das Zeitlimit
         while (Anzahl_Bonbon < Mindestmenge && (Ein_Bonbon_erkannt == 0 && Ausgabe_Dauer_bis_Bonbon < 10000)) {
             Ausgabe_Dauer_bis_Bonbon = control.millis() - Ausgabe_Startzeit
