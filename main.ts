@@ -309,6 +309,7 @@ let Lautstärke = 0
 let Sound_Zeit_seit_Start_ms = 0
 let Sound_Startzeit = 0
 let Attraktion_Helfer2 = 0
+let LastPingTime = 0
 let event_source = 0
 let event_value = 0
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
@@ -362,6 +363,9 @@ basic.forever(function () {
 })
 control.inBackground(function () {
     while (true) {
+        if (control.millis() - LastPingTime > 1000) {
+            radio.sendValue("ping", 0)
+        }
         if (Spiel == 1) {
             Spiel_Hintergrund_1()
         } else if (Spiel == 2) {
