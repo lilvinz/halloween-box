@@ -265,8 +265,9 @@ input.onButtonPressed(Button.B, function () {
 input.onGesture(Gesture.Shake, function () {
     Verstärker(100)
     player_pro.play_sound(15)
+    radio.sendValue("tilt", 0)
     player_pro.wait_until_elapsed(4000)
-    Verstärker(Lautstärke)
+    control.reset()
 })
 function Verstärker (Lautstärke: number) {
     Geprüfte_Lautstärke = Lautstärke
