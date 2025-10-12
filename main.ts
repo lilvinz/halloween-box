@@ -149,7 +149,7 @@ function Bonbons_ausgeben () {
     }
 }
 input.onButtonPressed(Button.A, function () {
-    Lautstärke += -1
+    Lautstärke += -5
     if (Lautstärke < 0) {
         Lautstärke = 0
     }
@@ -256,7 +256,7 @@ input.onButtonPressed(Button.AB, function () {
     servos.P0.stop()
 })
 input.onButtonPressed(Button.B, function () {
-    Lautstärke += 1
+    Lautstärke += 5
     if (Lautstärke > 255) {
         Lautstärke = 255
     }
