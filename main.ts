@@ -210,7 +210,7 @@ function Attraktion () {
                 basic.pause(randint(500, 1000))
             }
         } else if (Attraktionsmodus == 3) {
-            Attraktion_Helfer = randint(0, 3)
+            Attraktion_Helfer = randint(0, 4)
             player_pro.play_sound(randint(11, 21))
             if (Attraktion_Helfer == 0) {
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
@@ -236,8 +236,14 @@ function Attraktion () {
                     halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
+            } else if (Attraktion_Helfer == 4) {
+                while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
+                    Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
+                    halloween.Bild_anzeigen(halloween.Feuer(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
+                    basic.pause(10)
+                }
             } else {
-            	
+
             }
         } else {
         	
