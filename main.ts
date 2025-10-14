@@ -11,13 +11,13 @@ function Spiel_1 () {
         Ergebnis = HalloweenKeypad.waitForAnyKey(50)
         if (Ergebnis >= 0) {
             if (PixelListe[Ergebnis] == 1) {
-                player_pro.play_sound(8)
+                player_pro.play_sound(2)
                 PixelListe[Ergebnis] = 0
                 Tastenmatrix.setPixelColor(Ergebnis, neopixel.colors(NeoPixelColors.Black))
                 Tastenmatrix.show()
                 Fortschritt += 1
             } else {
-                player_pro.play_sound(13)
+                player_pro.play_sound(5)
                 Timeout = Timeout * 0.75
             }
         }
@@ -42,11 +42,11 @@ function Spiel_2 () {
             Ergebnis = HalloweenKeypad.waitForAnyKey(50)
             if (Ergebnis >= 0) {
                 if (Ergebnis == Pixel) {
-                    player_pro.play_sound(8)
+                    player_pro.play_sound(2)
                     Fortschritt += 1
                     Timeout = Timeout * 0.75
                 } else {
-                    player_pro.play_sound(13)
+                    player_pro.play_sound(5)
                     Fortschritt += -1
                     Timeout = Timeout * 0.75
                     if (Fortschritt < 0) {
@@ -97,7 +97,7 @@ function Attraktion_Hintergrund() {
 }
 function Bonbonausgabe_Hintergrund () {
     if (player_pro.millis_since_last_play() > 3000) {
-        player_pro.play_sound(7)
+        player_pro.play_sound(1)
     }
     Kreis.rotate(1)
     Kreis.show()
@@ -108,7 +108,7 @@ function Bonbonausgabe_Hintergrund () {
     }
 }
 function Bonbons_ausgeben () {
-    player_pro.play_sound(7)
+    player_pro.play_sound(1)
     Spiel = 99
     Kreis.showRainbow(1, 360)
     Mindestmenge = 2
@@ -140,11 +140,11 @@ function Bonbons_ausgeben () {
     radio.sendValue("dispens", Anzahl_Bonbon)
     if (Anzahl_Bonbon < Mindestmenge) {
         halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
-        player_pro.play_sound(13)
+        player_pro.play_sound(5)
         player_pro.wait_until_elapsed(1500)
-        player_pro.play_sound(13)
+        player_pro.play_sound(5)
         player_pro.wait_until_elapsed(1500)
-        player_pro.play_sound(13)
+        player_pro.play_sound(5)
         player_pro.wait_until_elapsed(1500)
     }
 }
@@ -170,7 +170,7 @@ function Spiel_4 () {
     return 0
 }
 function Spielstart () {
-    player_pro.play_sound(9)
+    player_pro.play_sound(3)
     Spielstart_Bild = randint(0, 2)
     if (Spielstart_Bild == 0) {
         halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, 255, true)
@@ -358,7 +358,7 @@ basic.forever(function () {
         Bonbons_ausgeben()
     } else {
         halloween.Bild_anzeigen(halloween.Falsch(), Tastenmatrix, 255, 255, true)
-        player_pro.play_sound(10)
+        player_pro.play_sound(4)
         player_pro.wait_until_elapsed(5000)
     }
 })
