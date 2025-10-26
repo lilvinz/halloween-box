@@ -253,7 +253,135 @@ function Attraktion() {
     basic.pause(100)
 }
 function Spiel_3() {
-    return 0
+    HalloweenKeypad.clearEventQueue()
+    Timeout = 30000  // 30 seconds total timeout
+    Memory_Positions = []
+    Memory_Colors = []
+    Memory_Miss_Count = 0
+    Memory_Current_Step = 0
+    Memory_Show_Phase = true
+
+    // Define easily recognizable colors (RGB values)
+    let available_colors = [
+        neopixel.rgb(255, 0, 0),    // Red
+        neopixel.rgb(0, 255, 0),    // Green
+        neopixel.rgb(0, 0, 255),    // Blue
+        neopixel.rgb(255, 255, 0),  // Yellow
+        neopixel.rgb(255, 0, 255),  // Magenta
+        neopixel.rgb(0, 255, 255)   // Cyan
+    ]
+
+    // Generate random sequence with unique positions and colors
+    let used_positions: number[] = []
+    let used_colors: number[] = []
+    for (let i = 0; i < Memory_Sequence_Length; i++) {
+        let new_position: number
+        do {
+            new_position = randint(0, 24)
+        } while (used_positions.indexOf(new_position) >= 0)
+
+        let new_color: number
+        do {
+            new_color = available_colors[randint(0, available_colors.length - 1)]
+        } while (used_colors.indexOf(new_color) >= 0)
+
+        used_positions.push(new_position)
+        used_colors.push(new_color)
+        Memory_Positions.push(new_position)
+        Memory_Colors.push(new_color)
+    }
+
+    Timer = control.millis()
+
+    // Show sequence phase - repeat until timeout or user starts pressing
+    let transition_button = -1
+    while (Memory_Show_Phase && control.millis() - Timer < Timeout) {
+        // Show the sequence
+        Tastenmatrix.clear()
+        for (let i = 0; i < Memory_Sequence_Length; i++) {
+            if (!Memory_Show_Phase) break
+            Tastenmatrix.setPixelColor(Memory_Positions[i], Memory_Colors[i])
+            Tastenmatrix.show()
+
+            // Check for user input during display
+            transition_button = HalloweenKeypad.waitForAnyKey(500)
+            if (transition_button >= 0) {
+                Memory_Show_Phase = false
+            }
+            if (!Memory_Show_Phase) break
+
+            // Pause between pixels
+            transition_button = HalloweenKeypad.waitForAnyKey(500)
+            if (transition_button >= 0) {
+                Memory_Show_Phase = false
+            }
+            if (!Memory_Show_Phase) break
+        }
+
+        // Longer pause before repeating sequence
+        if (Memory_Show_Phase) {
+            Tastenmatrix.clear()
+            Tastenmatrix.show()
+
+            transition_button = HalloweenKeypad.waitForAnyKey(1000)
+            if (transition_button >= 0) {
+                Memory_Show_Phase = false
+            }
+        }
+    }
+
+    // Input phase - wait for user to reproduce sequence
+    Tastenmatrix.clear()
+    Tastenmatrix.show()
+
+    while (Memory_Current_Step < Memory_Sequence_Length && Memory_Miss_Count < 2 && control.millis() - Timer < Timeout) {
+        // Use transition button on first iteration, otherwise wait for input
+        if (transition_button >= 0) {
+            Ergebnis = transition_button
+            transition_button = -1  // Clear it so we don't reuse
+        } else {
+            Ergebnis = HalloweenKeypad.waitForAnyKey(50)
+        }
+        if (Ergebnis >= 0) {
+            if (Ergebnis == Memory_Positions[Memory_Current_Step]) {
+                // Correct button pressed
+                player_pro.play_sound(2)
+                Tastenmatrix.setPixelColor(Ergebnis, Memory_Colors[Memory_Current_Step])
+                Tastenmatrix.show()
+                Memory_Current_Step += 1
+            } else {
+                // Wrong button pressed
+                player_pro.play_sound(5)
+                Memory_Miss_Count += 1
+                // Flash the wrong button briefly in red
+                Tastenmatrix.setPixelColor(Ergebnis, neopixel.rgb(255, 0, 0))
+                Tastenmatrix.show()
+                basic.pause(200)
+
+                // Restore previous state - check if this button was already correctly pressed
+                let restore_color = neopixel.colors(NeoPixelColors.Black)
+                for (let j = 0; j < Memory_Current_Step; j++) {
+                    if (Memory_Positions[j] == Ergebnis) {
+                        restore_color = Memory_Colors[j]
+                        break
+                    }
+                }
+                Tastenmatrix.setPixelColor(Ergebnis, restore_color)
+                Tastenmatrix.show()
+            }
+        }
+    }
+
+    // Check win condition
+    if (Memory_Current_Step >= Memory_Sequence_Length && Memory_Miss_Count < 2) {
+        return 1  // Win
+    } else {
+        // Wait for error sound to complete before returning loss
+        if (Memory_Miss_Count >= 2) {
+            player_pro.wait_until_elapsed(1000)
+        }
+        return 0  // Loss
+    }
 }
 input.onButtonPressed(Button.AB, function () {
     servos.P0.run(60)
@@ -292,6 +420,12 @@ function Verstärker(Lautstärke: number) {
     )
 }
 let MonsterFarbe = 0
+let Memory_Sequence_Length = 4
+let Memory_Positions: number[] = []
+let Memory_Colors: number[] = []
+let Memory_Miss_Count = 0
+let Memory_Current_Step = 0
+let Memory_Show_Phase = true
 let Geprüfte_Lautstärke = 0
 let playtime_polling_time = 0
 let Attraktion_Helfer = 0
@@ -340,7 +474,7 @@ basic.forever(function () {
     Tastenmatrix.clear()
     Attraktion()
     Spielstart()
-    Spiel = randint(1, 2)
+    Spiel = randint(1, 3)
     if (Spiel == 1) {
         Ergebnis = Spiel_1()
     } else if (Spiel == 2) {
