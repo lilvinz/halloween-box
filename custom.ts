@@ -253,7 +253,7 @@ namespace halloween {
      * @param brightnessRGB Brightness for RGB (0–255). Default 255
      * @param brightnessW Brightness for White (0–255). Default 255
      * @param showAfter Call show() after drawing (default true)
-     * @param applyGamma Apply Stevens' power law gamma correction for better dark color rendering (default true)
+     * @param applyGamma Apply Stevens' power law gamma correction for better dark color rendering (default false)
      * @param gammaExponent Gamma correction exponent (default 0.45 for better dark color perception)
      */
     //% blockId="bild_anzeigen_advanced"
@@ -263,7 +263,7 @@ namespace halloween {
     //% weight=100
     //% brightnessRGB.min=0 brightnessRGB.max=255 brightnessRGB.defl=255
     //% brightnessW.min=0 brightnessW.max=255 brightnessW.defl=255
-    //% applyGamma.defl=true
+    //% applyGamma.defl=false
     //% gammaExponent.defl=0.45
     export function Bild_anzeigen(
         RGBW: number[][],
@@ -271,7 +271,7 @@ namespace halloween {
         brightnessRGB: number = 255,
         brightnessW: number = 255,
         showAfter: boolean = true,
-        applyGamma: boolean = true,
+        applyGamma: boolean = false,
         gammaExponent: number = 0.45
     ) {
         const br = clamp8(brightnessRGB)

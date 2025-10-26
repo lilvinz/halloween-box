@@ -237,7 +237,7 @@ function Attraktion() {
                 }
             } else if (Attraktion_Helfer == 4) {
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
-                    Attraktion_Helfer = halloween.stevensLawBrightness(halloween.Pulsing_Brightness(2000, 10, 255), 0.5)
+                    Attraktion_Helfer = halloween.Pulsing_Brightness(2000, 10, 255)
                     halloween.Bild_anzeigen(halloween.Feuer(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
