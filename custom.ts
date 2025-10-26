@@ -14,13 +14,13 @@ namespace player_pro {
     let last_playertime = -1
     let serial_last_line = ""
 
-    serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function() {
+    serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         serial_last_line = serial.readLine()
     })
 
     /**
      * Connect to the DFPlayer Pro module using UART.
-     * 
+     *
      * This must be called before using any other functions.
      * It automatically sets up the serial connection and disables
      * the onboard amplifier to prepare the module for external use.
@@ -56,7 +56,7 @@ namespace player_pro {
 
     /**
      * Play a sound file by its numeric filename.
-     * 
+     *
      * The DFPlayer Pro will play the file in the root directory
      * matching the given number (starting from 1). Files must follow
      * the naming convention: `1.mp3`, `2.mp3`, etc.
@@ -76,7 +76,7 @@ namespace player_pro {
 
     /**
      * Play a music track from the /music folder by its number.
-     * 
+     *
      * The DFPlayer Pro will play the file located in the `/music/` directory
      * with the given number (starting from 1). Files must be named following
      * DFPlayer Pro conventions, e.g. `1.mp3`, `2.mp3`, etc.
@@ -96,7 +96,7 @@ namespace player_pro {
 
     /**
      * Get the elapsed time in milliseconds since the last play command.
-     * 
+     *
      * Returns 0 if no playback command has been issued yet.
      *
      * @returns milliseconds since the last play command
@@ -111,7 +111,7 @@ namespace player_pro {
     /**
      * Wait until a specified number of milliseconds have passed
      * since the last play command.
-     * 
+     *
      * This is useful for sequencing sounds or synchronizing
      * other actions to playback timing.
      *
@@ -130,10 +130,10 @@ namespace player_pro {
 
     /**
      * Get the current playback time from the DFPlayer Pro.
-     * 
+     *
      * This queries the DFPlayer Pro using `AT+QUERY=3`, which returns
      * the current playtime in milliseconds of the track being played.
-     * 
+     *
      * Returns 0 if no track is playing or if the response is invalid.
      *
      * @returns current playback time in milliseconds
@@ -160,7 +160,7 @@ namespace player_pro {
     /**
      * Check if the DFPlayer Pro playback time has advanced
      * since the last check.
-     * 
+     *
      * This can be used to detect whether playback is progressing.
      * Returns `true` if the playtime has changed since the last call,
      * otherwise `false`.
@@ -222,14 +222,26 @@ namespace halloween {
         return Math.max(0, Math.min(255, n | 0))
     }
 
-    // Helper: scale a 24-bit RGB color by a factor (0..255)
-    function scaleColor24(c: number, factor: number) {
+    // Helper: scale a 24-bit RGB color by a factor (0..255) with optional gamma correction
+    function scaleColor24(c: number, factor: number, applyGamma: boolean = false, gammaExponent: number = 0.45) {
         const r = (c >> 16) & 0xFF
         const g = (c >> 8) & 0xFF
         const b = c & 0xFF
-        const rr = Math.idiv(r * factor, 255)
-        const gg = Math.idiv(g * factor, 255)
-        const bb = Math.idiv(b * factor, 255)
+
+        let rr: number, gg: number, bb: number
+
+        if (applyGamma) {
+            // Apply Stevens' power law (gamma correction) before scaling
+            rr = Math.idiv(stevensLawBrightness(r, gammaExponent) * factor, 255)
+            gg = Math.idiv(stevensLawBrightness(g, gammaExponent) * factor, 255)
+            bb = Math.idiv(stevensLawBrightness(b, gammaExponent) * factor, 255)
+        } else {
+            // Linear scaling (original behavior)
+            rr = Math.idiv(r * factor, 255)
+            gg = Math.idiv(g * factor, 255)
+            bb = Math.idiv(b * factor, 255)
+        }
+
         return (rr << 16) | (gg << 8) | bb
     }
 
@@ -241,20 +253,26 @@ namespace halloween {
      * @param brightnessRGB Brightness for RGB (0–255). Default 255
      * @param brightnessW Brightness for White (0–255). Default 255
      * @param showAfter Call show() after drawing (default true)
+     * @param applyGamma Apply Stevens' power law gamma correction for better dark color rendering (default true)
+     * @param gammaExponent Gamma correction exponent (default 0.45 for better dark color perception)
      */
     //% blockId="bild_anzeigen_advanced"
-    //% block="display %RGBW on %strip|RGB %brightnessRGB|White %brightnessW|show %showAfter"
+    //% block="display %RGBW on %strip|RGB %brightnessRGB|White %brightnessW|show %showAfter|gamma %applyGamma|exponent %gammaExponent"
     //% group="Display"
     //% inlineInputMode=inline
     //% weight=100
     //% brightnessRGB.min=0 brightnessRGB.max=255 brightnessRGB.defl=255
     //% brightnessW.min=0 brightnessW.max=255 brightnessW.defl=255
+    //% applyGamma.defl=true
+    //% gammaExponent.defl=0.45
     export function Bild_anzeigen(
         RGBW: number[][],
         strip: neopixel.Strip,
         brightnessRGB: number = 255,
         brightnessW: number = 255,
-        showAfter: boolean = true
+        showAfter: boolean = true,
+        applyGamma: boolean = true,
+        gammaExponent: number = 0.45
     ) {
         const br = clamp8(brightnessRGB)
         const bw = clamp8(brightnessW)
@@ -262,7 +280,7 @@ namespace halloween {
         for (let i = 0; i < 25 && i < RGBW.length; i++) {
             const c = RGBW[i][0] | 0
             const w = clamp8(RGBW[i][1] || 0)
-            const cScaled = (br === 255) ? c : scaleColor24(c, br)
+            const cScaled = scaleColor24(c, br, applyGamma, gammaExponent)
             const wScaled = (bw === 255) ? w : Math.idiv(w * bw, 255)
             strip.setPixelColor(i, cScaled)
             strip.setPixelWhiteLED(i, wScaled)
