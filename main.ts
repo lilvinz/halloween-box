@@ -322,7 +322,7 @@ let event_value = 0
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
-Lautstärke = 60
+Lautstärke = 80
 Verstärker(Lautstärke)
 HalloweenKeypad.initialize()
 Kreis = neopixel.create(DigitalPin.P12, 35, NeoPixelMode.RGB)
