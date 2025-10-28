@@ -293,8 +293,9 @@ function Spiel_3() {
 
     Timer = control.millis()
 
-    // Show sequence phase - repeat until timeout or user starts pressing
+    // Show sequence phase - show twice, then repeat until user starts pressing
     let transition_button = -1
+    let sequence_iterations = 0
     while (Memory_Show_Phase && control.millis() - Timer < Timeout) {
         // Show the sequence
         Tastenmatrix.clear()
@@ -303,19 +304,33 @@ function Spiel_3() {
             Tastenmatrix.setPixelColor(Memory_Positions[i], Memory_Colors[i])
             Tastenmatrix.show()
 
-            // Check for user input during display
-            transition_button = HalloweenKeypad.waitForAnyKey(500)
-            if (transition_button >= 0) {
-                Memory_Show_Phase = false
+            // Check for user input during display (only after 2 complete displays)
+            if (sequence_iterations >= 2) {
+                transition_button = HalloweenKeypad.waitForAnyKey(300)
+                if (transition_button >= 0) {
+                    Memory_Show_Phase = false
+                }
+            } else {
+                basic.pause(300)
             }
             if (!Memory_Show_Phase) break
 
             // Pause between pixels
-            transition_button = HalloweenKeypad.waitForAnyKey(500)
-            if (transition_button >= 0) {
-                Memory_Show_Phase = false
+            if (sequence_iterations >= 2) {
+                transition_button = HalloweenKeypad.waitForAnyKey(300)
+                if (transition_button >= 0) {
+                    Memory_Show_Phase = false
+                }
+            } else {
+                basic.pause(300)
             }
             if (!Memory_Show_Phase) break
+        }
+
+        // Count iterations and clear event queue after first two
+        sequence_iterations += 1
+        if (sequence_iterations == 2) {
+            HalloweenKeypad.clearEventQueue()
         }
 
         // Longer pause before repeating sequence
@@ -323,9 +338,13 @@ function Spiel_3() {
             Tastenmatrix.clear()
             Tastenmatrix.show()
 
-            transition_button = HalloweenKeypad.waitForAnyKey(1000)
-            if (transition_button >= 0) {
-                Memory_Show_Phase = false
+            if (sequence_iterations >= 2) {
+                transition_button = HalloweenKeypad.waitForAnyKey(1000)
+                if (transition_button >= 0) {
+                    Memory_Show_Phase = false
+                }
+            } else {
+                basic.pause(1000)
             }
         }
     }
