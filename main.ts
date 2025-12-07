@@ -214,7 +214,7 @@ function Attraktion() {
             if (Attraktion_Helfer == 0) {
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.Pulsing_Brightness(2000, 10, 255)
-                    halloween.Bild_anzeigen(halloween.Totenkopf(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
+                    halloween.Bild_anzeigen(halloween.Baum2(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else if (Attraktion_Helfer == 1) {
@@ -226,19 +226,19 @@ function Attraktion() {
             } else if (Attraktion_Helfer == 2) {
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.Pulsing_Brightness(2000, 10, 255)
-                    halloween.Bild_anzeigen(halloween.Kürbis(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
+                    halloween.Bild_anzeigen(halloween.Stern(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else if (Attraktion_Helfer == 3) {
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.Pulsing_Brightness(2000, 10, 255)
-                    halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, Attraktion_Helfer, true)
+                    halloween.Bild_anzeigen(halloween.Christbaumkugel(), Tastenmatrix, 255, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else if (Attraktion_Helfer == 4) {
                 while (HalloweenKeypad.waitForAnyKey(0) == -1 && control.millis() - Timer < Timeout) {
                     Attraktion_Helfer = halloween.Pulsing_Brightness(2000, 10, 255)
-                    halloween.Bild_anzeigen(halloween.Feuer(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
+                    halloween.Bild_anzeigen(halloween.Glocke(), Tastenmatrix, Attraktion_Helfer, Attraktion_Helfer, true)
                     basic.pause(10)
                 }
             } else {
