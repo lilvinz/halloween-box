@@ -172,11 +172,11 @@ function Spielstart() {
     player_pro.play_sound(3)
     Spielstart_Bild = randint(0, 2)
     if (Spielstart_Bild == 0) {
-        halloween.Bild_anzeigen(halloween.Geist(), Tastenmatrix, 255, 255, true)
+        halloween.Bild_anzeigen(halloween.Stern(), Tastenmatrix, 255, 255, true)
     } else if (Spielstart_Bild == 1) {
-        halloween.Bild_anzeigen(halloween.Totenkopf(), Tastenmatrix, 255, 255, true)
+        halloween.Bild_anzeigen(halloween.Glocke(), Tastenmatrix, 255, 255, true)
     } else {
-        halloween.Bild_anzeigen(halloween.Kürbis(), Tastenmatrix, 255, 255, true)
+        halloween.Bild_anzeigen(halloween.Geschenkpaket(), Tastenmatrix, 255, 255, true)
     }
     player_pro.wait_until_elapsed(6000)
     Tastenmatrix.clear()
