@@ -2,7 +2,7 @@ function Spiel_1() {
     HalloweenKeypad.clearEventQueue()
     Timeout = 10000
     PixelListe = []
-    for (let Index = 0; Index <= 25; Index++) {
+    for (let Index = 0; Index < 25; Index++) {
         PixelListe.push(1)
     }
     Timer = control.millis()
@@ -73,7 +73,7 @@ function Spiel_2() {
     }
 }
 function Spiel_Hintergrund_1() {
-    for (let Index2 = 0; Index2 <= 25; Index2++) {
+    for (let Index2 = 0; Index2 < 25; Index2++) {
         if (PixelListe[Index2]) {
             Tastenmatrix.setPixelColor(Index2, neopixel.rgb(halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5), 0, 0))
         }
