@@ -599,8 +599,7 @@ basic.forever(function () {
     Tastenmatrix.clear()
     Attraktion()
     Spielstart()
-    // Testmodus: später wieder auf Zufall 1..4 zurückstellen.
-    Spiel = 4
+    Spiel = randint(1, 4)
     if (Spiel == 1) {
         Ergebnis = Spiel_1()
     } else if (Spiel == 2) {
