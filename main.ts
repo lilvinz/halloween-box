@@ -165,6 +165,10 @@ function Spiel_Hintergrund_2() {
     Tastenmatrix.setPixelColor(Pixel, neopixel.rgb(0, 0, halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5)))
     Tastenmatrix.show()
 }
+interface Spiel4Tasteneingabe {
+    runde: number;
+    richtig: boolean;
+}
 function Spiel_4() {
     HalloweenKeypad.clearEventQueue()
     let treffer = 0
@@ -176,53 +180,86 @@ function Spiel_4() {
     let position = 0
     let richtung = 1
     let naechsterSchritt = startzeit
-    let ziel = 0
-    let taste = -1
+    let aktuelleRunde = 0
+    let angezeigteRunde = -1
+    let angezeigtesZiel = -1
+    let eingaben: Spiel4Tasteneingabe[] = []
+    let spielLaeuft = true
+
+    // Die Callback-Auswertung hält den beim sichtbaren Pixel gültigen Zustand
+    // fest; späteres Polling darf einen alten Tastendruck nicht umdeuten.
+    Spiel4_Eingabe = function (taste: number) {
+        if (spielLaeuft && angezeigtesZiel >= 0 && angezeigteRunde == aktuelleRunde) {
+            eingaben.push({ runde: angezeigteRunde, richtig: taste == angezeigtesZiel })
+        }
+    }
     Tastenmatrix.clear()
     while (treffer < 3 && fehler < 3 && control.millis() - startzeit < 20000) {
         if (control.millis() - startzeit >= 20000) {
             break
         }
+
+        // Die Keypad-API liefert bei timeout=0 nicht unterscheidbar -1 für
+        // Release und leere Queue. Presses werden daher über den EINEN
+        // registrierten Callback in diese Spiel-Queue übernommen.
+        HalloweenKeypad.clearEventQueue()
+        while (eingaben.length > 0 && treffer < 3 && fehler < 3) {
+            if (control.millis() - startzeit >= 20000) {
+                break
+            }
+            let eingabe = eingaben.shift()
+            if (eingabe.runde == aktuelleRunde) {
+                if (eingabe.richtig) {
+                    treffer += 1
+                    // Vor dem Sound erhöhen: Eingaben während der UART-Ausgabe
+                    // des alten Bildes dürfen nicht zur nächsten Runde zählen.
+                    aktuelleRunde += 1
+                    player_pro.play_sound(2)
+                    if (treffer < 3) {
+                        schrittDauer = 400 - treffer * 100
+                        spalte = randint(0, 1) == 1
+                        linie = randint(0, 4)
+                        position = 0
+                        richtung = 1
+                        naechsterSchritt = control.millis()
+                    }
+                } else {
+                    fehler += 1
+                    player_pro.play_sound(5)
+                }
+            }
+        }
+
+        if (treffer >= 3 || fehler >= 3 || control.millis() - startzeit >= 20000) {
+            break
+        }
+
         if (control.millis() >= naechsterSchritt) {
             Tastenmatrix.clear()
+            let neuesZiel = 0
             if (spalte) {
-                ziel = position * 5 + linie
+                neuesZiel = position * 5 + linie
             } else {
-                ziel = linie * 5 + position
+                neuesZiel = linie * 5 + position
             }
-            Tastenmatrix.setPixelColor(ziel, neopixel.colors(NeoPixelColors.White))
+            Tastenmatrix.setPixelColor(neuesZiel, neopixel.colors(NeoPixelColors.White))
             Tastenmatrix.show()
+            // Erst nach show() umschalten: Ein Tastendruck während der Ausgabe
+            // wird noch gegen das zuvor sichtbare Ziel klassifiziert.
+            angezeigtesZiel = neuesZiel
+            angezeigteRunde = aktuelleRunde
             naechsterSchritt = control.millis() + schrittDauer
             position += richtung
             if (position == 4 || position == 0) {
                 richtung = -richtung
             }
         }
-        taste = HalloweenKeypad.waitForAnyKey(0)
-        if (taste >= 0) {
-            if (control.millis() - startzeit >= 20000) {
-                break
-            }
-            if (taste == ziel) {
-                player_pro.play_sound(2)
-                treffer += 1
-                if (treffer >= 3) {
-                    break
-                }
-                schrittDauer = 400 - treffer * 100
-                HalloweenKeypad.clearEventQueue()
-                spalte = randint(0, 1) == 1
-                linie = randint(0, 4)
-                position = 0
-                richtung = 1
-                naechsterSchritt = control.millis()
-            } else {
-                player_pro.play_sound(5)
-                fehler += 1
-            }
-        }
         basic.pause(5)
     }
+    Spiel4_Eingabe = null
+    spielLaeuft = false
+    eingaben = []
+    HalloweenKeypad.clearEventQueue()
     Tastenmatrix.clear()
     Tastenmatrix.show()
     if (treffer >= 3) {
@@ -494,12 +531,18 @@ let Attraktion_Helfer2 = 0
 let LastPingTime = 0
 let event_source = 0
 let event_value = 0
+let Spiel4_Eingabe: ((taste: number) => void) = null
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
 Lautstärke = 80
 Verstärker(Lautstärke)
 HalloweenKeypad.initialize()
+HalloweenKeypad.onAnyKeyPressed(function (taste: number) {
+    if (Spiel4_Eingabe) {
+        Spiel4_Eingabe(taste)
+    }
+})
 Kreis = neopixel.create(DigitalPin.P12, 35, NeoPixelMode.RGB)
 Kreis.clear()
 Kreis.show()
