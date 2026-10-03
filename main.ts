@@ -635,6 +635,7 @@ basic.forever(function () {
 control.inBackground(function () {
     while (true) {
         if (control.millis() - LastPingTime > 1000) {
+            LastPingTime = control.millis()
             radio.sendValue("ping", 0)
         }
         if (Spiel == 1) {
