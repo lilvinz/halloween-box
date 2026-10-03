@@ -166,6 +166,68 @@ function Spiel_Hintergrund_2() {
     Tastenmatrix.show()
 }
 function Spiel_4() {
+    HalloweenKeypad.clearEventQueue()
+    let treffer = 0
+    let fehler = 0
+    let schrittDauer = 400
+    let startzeit = control.millis()
+    let spalte = randint(0, 1) == 1
+    let linie = randint(0, 4)
+    let position = 0
+    let richtung = 1
+    let naechsterSchritt = startzeit
+    let ziel = 0
+    let taste = -1
+    Tastenmatrix.clear()
+    while (treffer < 3 && fehler < 3 && control.millis() - startzeit < 20000) {
+        if (control.millis() - startzeit >= 20000) {
+            break
+        }
+        if (control.millis() >= naechsterSchritt) {
+            Tastenmatrix.clear()
+            if (spalte) {
+                ziel = position * 5 + linie
+            } else {
+                ziel = linie * 5 + position
+            }
+            Tastenmatrix.setPixelColor(ziel, neopixel.colors(NeoPixelColors.White))
+            Tastenmatrix.show()
+            naechsterSchritt = control.millis() + schrittDauer
+            position += richtung
+            if (position == 4 || position == 0) {
+                richtung = -richtung
+            }
+        }
+        taste = HalloweenKeypad.waitForAnyKey(0)
+        if (taste >= 0) {
+            if (control.millis() - startzeit >= 20000) {
+                break
+            }
+            if (taste == ziel) {
+                player_pro.play_sound(2)
+                treffer += 1
+                if (treffer >= 3) {
+                    break
+                }
+                schrittDauer = 400 - treffer * 100
+                HalloweenKeypad.clearEventQueue()
+                spalte = randint(0, 1) == 1
+                linie = randint(0, 4)
+                position = 0
+                richtung = 1
+                naechsterSchritt = control.millis()
+            } else {
+                player_pro.play_sound(5)
+                fehler += 1
+            }
+        }
+        basic.pause(5)
+    }
+    Tastenmatrix.clear()
+    Tastenmatrix.show()
+    if (treffer >= 3) {
+        return 1
+    }
     return 0
 }
 function Spielstart() {
@@ -453,7 +515,8 @@ basic.forever(function () {
     Tastenmatrix.clear()
     Attraktion()
     Spielstart()
-    Spiel = randint(1, 3)
+    // Testmodus: später wieder auf Zufall 1..4 zurückstellen.
+    Spiel = 4
     if (Spiel == 1) {
         Ergebnis = Spiel_1()
     } else if (Spiel == 2) {
