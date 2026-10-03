@@ -183,6 +183,11 @@ function Spiel_4() {
     let aktuelleRunde = 0
     let angezeigteRunde = -1
     let angezeigtesZiel = -1
+    let naechsterFrame = startzeit
+    let nachleuchtendeTaste = -1
+    let nachleuchtStart = 0
+    let nachleuchtFarbe = 0
+    let zielfarbe = neopixel.rgb(255, 90, 0)
     let eingaben: Spiel4Tasteneingabe[] = []
     let spielLaeuft = true
 
@@ -234,25 +239,61 @@ function Spiel_4() {
             break
         }
 
-        if (control.millis() >= naechsterSchritt) {
-            Tastenmatrix.clear()
-            let neuesZiel = 0
-            if (spalte) {
-                neuesZiel = position * 5 + linie
+        let jetzt = control.millis()
+        let zielWechselt = jetzt >= naechsterSchritt
+        if (zielWechselt || jetzt >= naechsterFrame) {
+            if (aktuelleRunde == 1) {
+                zielfarbe = neopixel.rgb(150, 0, 255)
+            } else if (aktuelleRunde >= 2) {
+                zielfarbe = neopixel.rgb(0, 220, 210)
             } else {
-                neuesZiel = linie * 5 + position
+                zielfarbe = neopixel.rgb(255, 90, 0)
             }
-            Tastenmatrix.setPixelColor(neuesZiel, neopixel.colors(NeoPixelColors.White))
+            if (zielWechselt && angezeigtesZiel >= 0 && angezeigteRunde == aktuelleRunde) {
+                nachleuchtendeTaste = angezeigtesZiel
+                nachleuchtStart = jetzt
+                nachleuchtFarbe = zielfarbe
+            }
+            if (angezeigteRunde != aktuelleRunde) {
+                nachleuchtendeTaste = -1
+            }
+            Tastenmatrix.clear()
+            if (nachleuchtendeTaste >= 0 && jetzt - nachleuchtStart < 140) {
+                let trailHelligkeit = Math.idiv(255 * (140 - (jetzt - nachleuchtStart)), 1400)
+                Tastenmatrix.setPixelColor(nachleuchtendeTaste, neopixel.rgb(
+                    Math.idiv(Math.idiv(nachleuchtFarbe & 0xFF0000, 65536) * trailHelligkeit, 255),
+                    Math.idiv(Math.idiv(nachleuchtFarbe & 0x00FF00, 256) * trailHelligkeit, 255),
+                    Math.idiv((nachleuchtFarbe & 0x0000FF) * trailHelligkeit, 255)
+                ))
+            }
+            let neuesZiel = angezeigtesZiel
+            if (zielWechselt) {
+                neuesZiel = 0
+                if (spalte) {
+                    neuesZiel = position * 5 + linie
+                } else {
+                    neuesZiel = linie * 5 + position
+                }
+            }
+            let puls = (Math.sin(jetzt * 2 * Math.PI / 900) + 1) / 2
+            let helligkeit = 0.55 + puls * 0.45
+            Tastenmatrix.setPixelColor(neuesZiel, neopixel.rgb(
+                Math.idiv(zielfarbe & 0xFF0000, 65536) * helligkeit,
+                Math.idiv(zielfarbe & 0x00FF00, 256) * helligkeit,
+                (zielfarbe & 0x0000FF) * helligkeit
+            ))
             Tastenmatrix.show()
-            // Erst nach show() umschalten: Ein Tastendruck während der Ausgabe
-            // wird noch gegen das zuvor sichtbare Ziel klassifiziert.
-            angezeigtesZiel = neuesZiel
-            angezeigteRunde = aktuelleRunde
-            naechsterSchritt = control.millis() + schrittDauer
-            position += richtung
-            if (position == 4 || position == 0) {
-                richtung = -richtung
+            if (zielWechselt) {
+                // Nur ein tatsächlicher Zielwechsel ändert die Eingabe-Zuordnung.
+                angezeigtesZiel = neuesZiel
+                angezeigteRunde = aktuelleRunde
+                naechsterSchritt = jetzt + schrittDauer
+                position += richtung
+                if (position == 4 || position == 0) {
+                    richtung = -richtung
+                }
             }
+            naechsterFrame = jetzt + 25
         }
         basic.pause(5)
     }
