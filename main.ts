@@ -38,9 +38,14 @@ function Spiel_2() {
     while (Fortschritt < 10) {
         Pixel = randint(0, 24)
         Timer = control.millis()
+        let eingabeGewertet = false
         while (control.millis() - Timer < Timeout) {
             Ergebnis = HalloweenKeypad.waitForAnyKey(50)
+            if (control.millis() - Timer >= Timeout) {
+                break
+            }
             if (Ergebnis >= 0) {
+                eingabeGewertet = true
                 if (Ergebnis == Pixel) {
                     player_pro.play_sound(2)
                     Fortschritt += 1
@@ -57,7 +62,7 @@ function Spiel_2() {
                 break;
             }
         }
-        if (control.millis() - Timer >= Timeout) {
+        if (!eingabeGewertet) {
             Fortschritt += -1
             Timeout = Timeout * 0.75
             if (Fortschritt < 0) {
