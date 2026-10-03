@@ -111,9 +111,9 @@ function Bonbons_ausgeben() {
     player_pro.play_sound(1)
     Spiel = 99
     Kreis.showRainbow(1, 360)
-    Mindestmenge = 2
+    Mindestmenge = 4
     Anzahl_Bonbon = 0
-    for (let index = 0; index < 2; index++) {
+    for (let index = 0; index < Mindestmenge; index++) {
         Ausgabe_Startzeit = control.millis()
         Ausgabe_Dauer_bis_Bonbon = 0
         Ein_Bonbon_erkannt = 0
