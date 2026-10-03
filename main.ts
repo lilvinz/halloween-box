@@ -38,14 +38,14 @@ function Spiel_2() {
     while (Fortschritt < 10) {
         Pixel = randint(0, 24)
         Timer = control.millis()
-        let eingabeGewertet = false
+        Spiel2_EingabeGewertet = false
         while (control.millis() - Timer < Timeout) {
             Ergebnis = HalloweenKeypad.waitForAnyKey(50)
             if (control.millis() - Timer >= Timeout) {
                 break
             }
             if (Ergebnis >= 0) {
-                eingabeGewertet = true
+                Spiel2_EingabeGewertet = true
                 if (Ergebnis == Pixel) {
                     player_pro.play_sound(2)
                     Fortschritt += 1
@@ -62,7 +62,7 @@ function Spiel_2() {
                 break;
             }
         }
-        if (!eingabeGewertet) {
+        if (!Spiel2_EingabeGewertet) {
             Fortschritt += -1
             Timeout = Timeout * 0.75
             if (Fortschritt < 0) {
@@ -170,42 +170,36 @@ function Spiel_Hintergrund_2() {
     Tastenmatrix.setPixelColor(Pixel, neopixel.rgb(0, 0, halloween.stevensLawBrightness(Math.map(control.millis() - Timer, 0, Timeout, 255, 0), 0.5)))
     Tastenmatrix.show()
 }
-interface Spiel4Tasteneingabe {
-    runde: number;
-    richtig: boolean;
-}
 function Spiel_4() {
+    Spiel4_Aktiv = false
     HalloweenKeypad.clearEventQueue()
-    let treffer = 0
-    let fehler = 0
-    let schrittDauer = 400
-    let startzeit = control.millis()
-    let spalte = randint(0, 1) == 1
-    let linie = randint(0, 4)
-    let position = 0
-    let richtung = 1
-    let naechsterSchritt = startzeit
-    let aktuelleRunde = 0
-    let angezeigteRunde = -1
-    let angezeigtesZiel = -1
-    let naechsterFrame = startzeit
-    let nachleuchtendeTaste = -1
-    let nachleuchtStart = 0
-    let nachleuchtFarbe = 0
-    let zielfarbe = neopixel.rgb(255, 90, 0)
-    let eingaben: Spiel4Tasteneingabe[] = []
-    let spielLaeuft = true
-
-    // Die Callback-Auswertung hält den beim sichtbaren Pixel gültigen Zustand
-    // fest; späteres Polling darf einen alten Tastendruck nicht umdeuten.
-    Spiel4_Eingabe = function (taste: number) {
-        if (spielLaeuft && angezeigtesZiel >= 0 && angezeigteRunde == aktuelleRunde) {
-            eingaben.push({ runde: angezeigteRunde, richtig: taste == angezeigtesZiel })
-        }
-    }
+    Spiel4_Treffer = 0
+    Spiel4_Fehler = 0
+    Spiel4_SchrittDauer = 400
+    Spiel4_Startzeit = control.millis()
+    Spiel4_Spalte = randint(0, 1) == 1
+    Spiel4_Linie = randint(0, 4)
+    Spiel4_Position = 0
+    Spiel4_Richtung = 1
+    Spiel4_NaechsterSchritt = Spiel4_Startzeit
+    Spiel4_AktuelleRunde = 0
+    Spiel4_AngezeigteRunde = -1
+    Spiel4_AngezeigtesZiel = -1
+    Spiel4_NaechsterFrame = Spiel4_Startzeit
+    Spiel4_NachleuchtendeTaste = -1
+    Spiel4_NachleuchtStart = 0
+    Spiel4_NachleuchtRot = 0
+    Spiel4_NachleuchtGruen = 0
+    Spiel4_NachleuchtBlau = 0
+    Spiel4_ZielRot = 255
+    Spiel4_ZielGruen = 90
+    Spiel4_ZielBlau = 0
+    Spiel4_EingabeRunden = []
+    Spiel4_EingabeRichtig = []
     Tastenmatrix.clear()
-    while (treffer < 3 && fehler < 3 && control.millis() - startzeit < 20000) {
-        if (control.millis() - startzeit >= 20000) {
+    Spiel4_Aktiv = true
+    while (Spiel4_Treffer < 3 && Spiel4_Fehler < 3 && control.millis() - Spiel4_Startzeit < 20000) {
+        if (control.millis() - Spiel4_Startzeit >= 20000) {
             break
         }
 
@@ -213,102 +207,111 @@ function Spiel_4() {
         // Release und leere Queue. Presses werden daher über den EINEN
         // registrierten Callback in diese Spiel-Queue übernommen.
         HalloweenKeypad.clearEventQueue()
-        while (eingaben.length > 0 && treffer < 3 && fehler < 3) {
-            if (control.millis() - startzeit >= 20000) {
+        while (Spiel4_EingabeRunden.length > 0 && Spiel4_Treffer < 3 && Spiel4_Fehler < 3) {
+            if (control.millis() - Spiel4_Startzeit >= 20000) {
                 break
             }
-            let eingabe = eingaben.shift()
-            if (eingabe.runde == aktuelleRunde) {
-                if (eingabe.richtig) {
-                    treffer += 1
+            Spiel4_EingabeRunde = Spiel4_EingabeRunden.shift()
+            Spiel4_EingabeIstRichtig = Spiel4_EingabeRichtig.shift()
+            if (Spiel4_EingabeRunde == Spiel4_AktuelleRunde) {
+                if (Spiel4_EingabeIstRichtig) {
+                    Spiel4_Treffer += 1
                     // Vor dem Sound erhöhen: Eingaben während der UART-Ausgabe
                     // des alten Bildes dürfen nicht zur nächsten Runde zählen.
-                    aktuelleRunde += 1
+                    Spiel4_AktuelleRunde += 1
                     player_pro.play_sound(2)
-                    if (treffer < 3) {
-                        schrittDauer = 400 - treffer * 100
-                        spalte = randint(0, 1) == 1
-                        linie = randint(0, 4)
-                        position = 0
-                        richtung = 1
-                        naechsterSchritt = control.millis()
+                    if (Spiel4_Treffer < 3) {
+                        Spiel4_SchrittDauer = 400 - Spiel4_Treffer * 100
+                        Spiel4_Spalte = randint(0, 1) == 1
+                        Spiel4_Linie = randint(0, 4)
+                        Spiel4_Position = 0
+                        Spiel4_Richtung = 1
+                        Spiel4_NaechsterSchritt = control.millis()
                     }
                 } else {
-                    fehler += 1
+                    Spiel4_Fehler += 1
                     player_pro.play_sound(5)
                 }
             }
         }
 
-        if (treffer >= 3 || fehler >= 3 || control.millis() - startzeit >= 20000) {
+        if (Spiel4_Treffer >= 3 || Spiel4_Fehler >= 3 || control.millis() - Spiel4_Startzeit >= 20000) {
             break
         }
 
-        let jetzt = control.millis()
-        let zielWechselt = jetzt >= naechsterSchritt
-        if (zielWechselt || jetzt >= naechsterFrame) {
-            if (aktuelleRunde == 1) {
-                zielfarbe = neopixel.rgb(150, 0, 255)
-            } else if (aktuelleRunde >= 2) {
-                zielfarbe = neopixel.rgb(0, 220, 210)
+        Spiel4_Jetzt = control.millis()
+        Spiel4_ZielWechselt = Spiel4_Jetzt >= Spiel4_NaechsterSchritt
+        if (Spiel4_ZielWechselt || Spiel4_Jetzt >= Spiel4_NaechsterFrame) {
+            if (Spiel4_AktuelleRunde == 1) {
+                Spiel4_ZielRot = 150
+                Spiel4_ZielGruen = 0
+                Spiel4_ZielBlau = 255
+            } else if (Spiel4_AktuelleRunde >= 2) {
+                Spiel4_ZielRot = 0
+                Spiel4_ZielGruen = 220
+                Spiel4_ZielBlau = 210
             } else {
-                zielfarbe = neopixel.rgb(255, 90, 0)
+                Spiel4_ZielRot = 255
+                Spiel4_ZielGruen = 90
+                Spiel4_ZielBlau = 0
             }
-            if (zielWechselt && angezeigtesZiel >= 0 && angezeigteRunde == aktuelleRunde) {
-                nachleuchtendeTaste = angezeigtesZiel
-                nachleuchtStart = jetzt
-                nachleuchtFarbe = zielfarbe
+            if (Spiel4_ZielWechselt && Spiel4_AngezeigtesZiel >= 0 && Spiel4_AngezeigteRunde == Spiel4_AktuelleRunde) {
+                Spiel4_NachleuchtendeTaste = Spiel4_AngezeigtesZiel
+                Spiel4_NachleuchtStart = Spiel4_Jetzt
+                Spiel4_NachleuchtRot = Spiel4_ZielRot
+                Spiel4_NachleuchtGruen = Spiel4_ZielGruen
+                Spiel4_NachleuchtBlau = Spiel4_ZielBlau
             }
-            if (angezeigteRunde != aktuelleRunde) {
-                nachleuchtendeTaste = -1
+            if (Spiel4_AngezeigteRunde != Spiel4_AktuelleRunde) {
+                Spiel4_NachleuchtendeTaste = -1
             }
             Tastenmatrix.clear()
-            if (nachleuchtendeTaste >= 0 && jetzt - nachleuchtStart < 140) {
-                let trailHelligkeit = Math.idiv(255 * (140 - (jetzt - nachleuchtStart)), 1400)
-                Tastenmatrix.setPixelColor(nachleuchtendeTaste, neopixel.rgb(
-                    Math.idiv(Math.idiv(nachleuchtFarbe & 0xFF0000, 65536) * trailHelligkeit, 255),
-                    Math.idiv(Math.idiv(nachleuchtFarbe & 0x00FF00, 256) * trailHelligkeit, 255),
-                    Math.idiv((nachleuchtFarbe & 0x0000FF) * trailHelligkeit, 255)
+            if (Spiel4_NachleuchtendeTaste >= 0 && Spiel4_Jetzt - Spiel4_NachleuchtStart < 140) {
+                Spiel4_TrailHelligkeit = Math.idiv(255 * (140 - (Spiel4_Jetzt - Spiel4_NachleuchtStart)), 1400)
+                Tastenmatrix.setPixelColor(Spiel4_NachleuchtendeTaste, neopixel.rgb(
+                    Math.idiv(Spiel4_NachleuchtRot * Spiel4_TrailHelligkeit, 255),
+                    Math.idiv(Spiel4_NachleuchtGruen * Spiel4_TrailHelligkeit, 255),
+                    Math.idiv(Spiel4_NachleuchtBlau * Spiel4_TrailHelligkeit, 255)
                 ))
             }
-            let neuesZiel = angezeigtesZiel
-            if (zielWechselt) {
-                neuesZiel = 0
-                if (spalte) {
-                    neuesZiel = position * 5 + linie
+            Spiel4_NeuesZiel = Spiel4_AngezeigtesZiel
+            if (Spiel4_ZielWechselt) {
+                Spiel4_NeuesZiel = 0
+                if (Spiel4_Spalte) {
+                    Spiel4_NeuesZiel = Spiel4_Position * 5 + Spiel4_Linie
                 } else {
-                    neuesZiel = linie * 5 + position
+                    Spiel4_NeuesZiel = Spiel4_Linie * 5 + Spiel4_Position
                 }
             }
-            let puls = (Math.sin(jetzt * 2 * Math.PI / 900) + 1) / 2
-            let helligkeit = 0.55 + puls * 0.45
-            Tastenmatrix.setPixelColor(neuesZiel, neopixel.rgb(
-                Math.idiv(zielfarbe & 0xFF0000, 65536) * helligkeit,
-                Math.idiv(zielfarbe & 0x00FF00, 256) * helligkeit,
-                (zielfarbe & 0x0000FF) * helligkeit
+            Spiel4_Puls = (Math.sin(Spiel4_Jetzt * 2 * Math.PI / 900) + 1) / 2
+            Spiel4_Helligkeit = 0.55 + Spiel4_Puls * 0.45
+            Tastenmatrix.setPixelColor(Spiel4_NeuesZiel, neopixel.rgb(
+                Spiel4_ZielRot * Spiel4_Helligkeit,
+                Spiel4_ZielGruen * Spiel4_Helligkeit,
+                Spiel4_ZielBlau * Spiel4_Helligkeit
             ))
             Tastenmatrix.show()
-            if (zielWechselt) {
+            if (Spiel4_ZielWechselt) {
                 // Nur ein tatsächlicher Zielwechsel ändert die Eingabe-Zuordnung.
-                angezeigtesZiel = neuesZiel
-                angezeigteRunde = aktuelleRunde
-                naechsterSchritt = jetzt + schrittDauer
-                position += richtung
-                if (position == 4 || position == 0) {
-                    richtung = -richtung
+                Spiel4_AngezeigtesZiel = Spiel4_NeuesZiel
+                Spiel4_AngezeigteRunde = Spiel4_AktuelleRunde
+                Spiel4_NaechsterSchritt = Spiel4_Jetzt + Spiel4_SchrittDauer
+                Spiel4_Position += Spiel4_Richtung
+                if (Spiel4_Position == 4 || Spiel4_Position == 0) {
+                    Spiel4_Richtung = -Spiel4_Richtung
                 }
             }
-            naechsterFrame = jetzt + 25
+            Spiel4_NaechsterFrame = Spiel4_Jetzt + 25
         }
         basic.pause(5)
     }
-    Spiel4_Eingabe = null
-    spielLaeuft = false
-    eingaben = []
+    Spiel4_Aktiv = false
+    Spiel4_EingabeRunden = []
+    Spiel4_EingabeRichtig = []
     HalloweenKeypad.clearEventQueue()
     Tastenmatrix.clear()
     Tastenmatrix.show()
-    if (treffer >= 3) {
+    if (Spiel4_Treffer >= 3) {
         return 1
     }
     return 0
@@ -407,7 +410,7 @@ function Spiel_3() {
     Memory_Show_Phase = true
 
     // Define easily recognizable colors (RGB values)
-    let available_colors = [
+    Memory_VerfuegbareFarben = [
         neopixel.rgb(255, 0, 0),    // Red
         neopixel.rgb(0, 255, 0),    // Green
         neopixel.rgb(0, 0, 255),    // Blue
@@ -417,23 +420,25 @@ function Spiel_3() {
     ]
 
     // Generate random sequence with unique positions and colors
-    let used_positions: number[] = []
-    let used_colors: number[] = []
+    Memory_BenutztePositionen = []
+    Memory_BenutzteFarben = []
+    Memory_NeuePosition = 0
+    Memory_NeueFarbe = 0
     for (let i = 0; i < Memory_Sequence_Length; i++) {
-        let new_position: number
-        do {
-            new_position = randint(0, 24)
-        } while (used_positions.indexOf(new_position) >= 0)
+        Memory_NeuePosition = randint(0, 24)
+        while (Memory_BenutztePositionen.indexOf(Memory_NeuePosition) >= 0) {
+            Memory_NeuePosition = randint(0, 24)
+        }
 
-        let new_color: number
-        do {
-            new_color = available_colors[randint(0, available_colors.length - 1)]
-        } while (used_colors.indexOf(new_color) >= 0)
+        Memory_NeueFarbe = Memory_VerfuegbareFarben[randint(0, Memory_VerfuegbareFarben.length - 1)]
+        while (Memory_BenutzteFarben.indexOf(Memory_NeueFarbe) >= 0) {
+            Memory_NeueFarbe = Memory_VerfuegbareFarben[randint(0, Memory_VerfuegbareFarben.length - 1)]
+        }
 
-        used_positions.push(new_position)
-        used_colors.push(new_color)
-        Memory_Positions.push(new_position)
-        Memory_Colors.push(new_color)
+        Memory_BenutztePositionen.push(Memory_NeuePosition)
+        Memory_BenutzteFarben.push(Memory_NeueFarbe)
+        Memory_Positions.push(Memory_NeuePosition)
+        Memory_Colors.push(Memory_NeueFarbe)
     }
 
     Timer = control.millis()
@@ -483,14 +488,14 @@ function Spiel_3() {
                 basic.pause(200)
 
                 // Restore previous state - check if this button was already correctly pressed
-                let restore_color = neopixel.colors(NeoPixelColors.Black)
+                Memory_Wiederherstellungsfarbe = neopixel.colors(NeoPixelColors.Black)
                 for (let j = 0; j < Memory_Current_Step; j++) {
                     if (Memory_Positions[j] == Ergebnis) {
-                        restore_color = Memory_Colors[j]
+                        Memory_Wiederherstellungsfarbe = Memory_Colors[j]
                         break
                     }
                 }
-                Tastenmatrix.setPixelColor(Ergebnis, restore_color)
+                Tastenmatrix.setPixelColor(Ergebnis, Memory_Wiederherstellungsfarbe)
                 Tastenmatrix.show()
             }
         }
@@ -577,7 +582,45 @@ let Attraktion_Helfer2 = 0
 let LastPingTime = 0
 let event_source = 0
 let event_value = 0
-let Spiel4_Eingabe: ((taste: number) => void) = null
+let Spiel2_EingabeGewertet = false
+let Spiel4_Aktiv = false
+let Spiel4_Treffer = 0
+let Spiel4_Fehler = 0
+let Spiel4_SchrittDauer = 0
+let Spiel4_Startzeit = 0
+let Spiel4_Spalte = false
+let Spiel4_Linie = 0
+let Spiel4_Position = 0
+let Spiel4_Richtung = 0
+let Spiel4_NaechsterSchritt = 0
+let Spiel4_AktuelleRunde = 0
+let Spiel4_AngezeigteRunde = 0
+let Spiel4_AngezeigtesZiel = 0
+let Spiel4_NaechsterFrame = 0
+let Spiel4_NachleuchtendeTaste = 0
+let Spiel4_NachleuchtStart = 0
+let Spiel4_NachleuchtRot = 0
+let Spiel4_NachleuchtGruen = 0
+let Spiel4_NachleuchtBlau = 0
+let Spiel4_ZielRot = 0
+let Spiel4_ZielGruen = 0
+let Spiel4_ZielBlau = 0
+let Spiel4_EingabeRunden: number[] = []
+let Spiel4_EingabeRichtig: boolean[] = []
+let Spiel4_EingabeRunde = 0
+let Spiel4_EingabeIstRichtig = false
+let Spiel4_Jetzt = 0
+let Spiel4_ZielWechselt = false
+let Spiel4_TrailHelligkeit = 0
+let Spiel4_NeuesZiel = 0
+let Spiel4_Puls = 0
+let Spiel4_Helligkeit = 0
+let Memory_VerfuegbareFarben: number[] = []
+let Memory_BenutztePositionen: number[] = []
+let Memory_BenutzteFarben: number[] = []
+let Memory_NeuePosition = 0
+let Memory_NeueFarbe = 0
+let Memory_Wiederherstellungsfarbe = 0
 // Sensor in der Ausgabe. Ist ein open drain low active. Deshalb pull-up aktiv.
 pins.setPull(DigitalPin.P8, PinPullMode.PullUp)
 pins.setEvents(DigitalPin.P8, PinEventType.Edge)
@@ -585,8 +628,9 @@ Lautstärke = 80
 Verstärker(Lautstärke)
 HalloweenKeypad.initialize()
 HalloweenKeypad.onAnyKeyPressed(function (taste: number) {
-    if (Spiel4_Eingabe) {
-        Spiel4_Eingabe(taste)
+    if (Spiel4_Aktiv && Spiel4_AngezeigtesZiel >= 0 && Spiel4_AngezeigteRunde == Spiel4_AktuelleRunde) {
+        Spiel4_EingabeRunden.push(Spiel4_AngezeigteRunde)
+        Spiel4_EingabeRichtig.push(taste == Spiel4_AngezeigtesZiel)
     }
 })
 Kreis = neopixel.create(DigitalPin.P12, 35, NeoPixelMode.RGB)
