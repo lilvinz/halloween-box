@@ -11,3 +11,7 @@ _site
 .header.json
 .simstate.json
 .slim/deepwork/
+# Original private photos may contain GPS metadata.
+/pics/
+# Local browser review captures.
+/.openchamber/

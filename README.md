@@ -27,6 +27,18 @@ The dispenser aims to deliver **at least four pieces of candy**, counted by the 
 
 Game 4 changes from orange to violet to turquoise and speeds up after each hit. Its target pulses and leaves a faint fading trail. **Only the bright target is hittable**, not the trail.
 
+## Audio
+
+The box uses a spooky background soundscape and game-specific sound effects.
+The two Visaton speakers and MAX9744 amplifier are clearly audible outdoors
+in our setup.
+
+The audio files are **not included**: their original sources and usage rights
+still need to be checked. For a rebuild, provide your own recordings or
+appropriately licensed replacements. Audio files may be added later if their
+redistribution rights are confirmed; the project's CC BY license does not
+apply to unverified third-party recordings.
+
 ## Open in MakeCode
 
 1. Open [MakeCode for micro:bit](https://makecode.microbit.org/).
@@ -84,6 +96,19 @@ The output is `built/binary.hex`. Connect a **micro:bit V2** over USB and copy t
 ## Project page
 
 [lilvinz.github.io/halloween-box](https://lilvinz.github.io/halloween-box/)
+
+## License
+
+Original source code, including firmware, tools, and the website's HTML/CSS
+presentation code, is licensed under the [MIT License](LICENSE).
+
+Original project documentation and photos, including prose on the project
+page, are licensed under [CC BY 4.0](LICENSE-docs.md). Attribution: **lilvinz**
+([GitHub](https://github.com/lilvinz)). When sharing or adapting them, provide
+credit, link to the license, and indicate changes.
+
+Third-party code and other third-party materials retain their own licenses.
+These notices do not license unpublished design files supplied by others.
 
 #### Metadata (used for search, rendering)
 

@@ -6,3 +6,11 @@ theme: jekyll-theme-slate
 include:
   - assets
   - README.md
+exclude:
+  - pics
+  - node_modules
+  - pxt_modules
+  - built
+  - tools
+  - .slim
+  - _history
