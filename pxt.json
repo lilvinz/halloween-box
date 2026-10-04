@@ -15,9 +15,6 @@
         "README.md",
         "custom.ts"
     ],
-    "testFiles": [
-        "test.ts"
-    ],
     "targetVersions": {
         "target": "8.0.18",
         "targetId": "microbit"
