@@ -22,7 +22,7 @@ The dispenser aims to deliver **at least four pieces of candy**, counted by the 
 | --- | --- |
 | 1. Button challenge | Press all 25 buttons. The time limit starts at ten seconds; pressing an already completed button reduces it by 25%. |
 | 2. Target button | Reach ten points by pressing the blue target. Wrong presses and timeouts subtract a point; a negative score loses. The round limit starts at 20 seconds and decreases by 25% each round. |
-| 3. Memory sequence | Watch four distinct positions and colours appear twice, then repeat the positions in order. |
+| 3. Memory sequence | Watch four distinct positions and colours appear twice, then repeat the positions in order. The game has a 30-second overall limit, including the presentation. Two counted mistakes end the game; mistakes count only after the first correct press. |
 | 4. Bouncing light | Catch the bright light as it moves along a row or column. Three hits win; three wrong presses or the 20-second limit lose. |
 
 Game 4 changes from orange to violet to turquoise and speeds up after each hit. Its target pulses and leaves a faint fading trail. **Only the bright target is hittable**, not the trail.
@@ -38,6 +38,21 @@ still need to be checked. For a rebuild, provide your own recordings or
 appropriately licensed replacements. Audio files may be added later if their
 redistribution rights are confirmed; the project's CC BY license does not
 apply to unverified third-party recordings.
+
+These paths describe the current firmware; the original recordings are not
+supplied. Use these exact filenames on the DFPlayer Pro's internal storage; the
+firmware selects them by path, not by upload order.
+
+| Path | Use |
+| --- | --- |
+| `/1.mp3` | Candy win and dispensing |
+| `/2.mp3` | Correct-hit feedback |
+| `/3.mp3` | Start animation before any game |
+| `/4.mp3` | Game-loss feedback |
+| `/5.mp3` | Error and negative feedback |
+| `/99.mp3` | Shake/tilt feedback before a restart |
+| `/11.mp3`–`/21.mp3` | Random attract-mode effects |
+| `/music/1.mp3`–`/music/10.mp3` | Attract-mode background music |
 
 ## Open in MakeCode
 
@@ -64,7 +79,7 @@ node tools/check-games.cjs             # Check game behaviour in TypeScript
 
 `make check-blockly` loads the actual `main.blocks`, compiles it to TypeScript, checks types and hardware fields, and runs game-behaviour simulations. It rejects unsupported JavaScript blocks. It **does not prove equality with an independently edited `main.ts`**. Commit both source files after synchronizing them.
 
-The simulations do not replace testing on the physical box.
+The standalone game simulations currently cover games 3 and 4; they do not exercise every firmware function or replace testing on the physical box.
 
 ## Local toolchain
 
@@ -74,12 +89,15 @@ From the project directory, install the CLI, the target version currently record
 
 ```sh
 npm install --no-save --package-lock=false pxt@0.5.1 pxt-microbit@9.0.12 jsdom@26.1.0
+node -e "require('fs').writeFileSync('node_modules/pxtcli.json', JSON.stringify({targetdir:'pxt-microbit'}))"
 ./node_modules/.bin/pxt install
 ```
 
 These flags avoid adding a package manifest or lockfile. Dependencies are stored in the ignored `node_modules/` and `pxt_modules/` directories. When MakeCode changes the target version, check that the local toolchain matches it.
 
-**Version note:** the existing local build and Blockly checks were verified with micro:bit target 8.1.3 / PXT Core 12.1.12. MakeCode subsequently regenerated the project for target 9.0.12. The matching installation above follows the published package metadata, but a clean 9.0.12 installation has not yet been validated here.
+The `pxtcli.json` file tells the CLI to use the locally installed, pinned micro:bit target; installing the npm packages alone does not create this resolver file.
+
+**Verified setup:** these installation steps, the Blockly checks, and the V2 cloud build were tested in a clean, isolated installation with micro:bit target 9.0.12 / PXT Core 13.0.9, Node.js 24.21.0 and npm 11.19.0. The firmware sources remained unchanged. An older local target installation must be updated to match the version required by `pxt.json` before running the checks.
 
 See the [MakeCode CLI documentation](https://makecode.com/cli) and [micro:bit target documentation](https://github.com/microsoft/pxt-microbit#readme) for toolchain details.
 

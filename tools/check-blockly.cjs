@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Official in-memory PXT decompile -> Blockly import/compile -> TS typecheck.
-// The only generated artifacts are written under /tmp/opencode.
+// The only generated artifacts are written under the system temp directory's opencode folder.
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 const assert = require("assert");
 const crypto = require("crypto");
 const { execFileSync } = require("child_process");
@@ -26,7 +27,9 @@ function parseArgs(argv) {
 }
 const args = parseArgs(process.argv.slice(2));
 const sourcePath = args.blocks || path.resolve(args.positional[0] || path.join(ROOT, "main.ts"));
-const tempRoot = fs.mkdtempSync(path.join("/tmp/opencode", "halloween-blockly-"));
+const tempBase = path.join(os.tmpdir(), "opencode");
+fs.mkdirSync(tempBase, { recursive: true });
+const tempRoot = fs.mkdtempSync(path.join(tempBase, "halloween-blockly-"));
 const logPath = path.join(tempRoot, "roundtrip.log");
 const log = [];
 let dom, workspace;
